@@ -800,3 +800,53 @@ button:active:not(:disabled) {
         transition: none !important;
     }
 }
+
+/* ===================================
+   PIXEL BACKGROUND + TREASURE EFFECTS
+=================================== */
+
+/* Subtle retro night-sky atmosphere */
+body {
+    background-color: #050d2b;
+    background-image:
+        radial-gradient(circle, rgba(100, 190, 255, 0.7) 1px, transparent 2px),
+        radial-gradient(circle, rgba(255, 204, 80, 0.6) 1px, transparent 2px);
+    background-size: 83px 83px, 127px 127px;
+    background-position: 10px 20px, 48px 65px;
+}
+
+/* Glowing treasure chest and treasure icons */
+.treasure-icon,
+.treasure-chest {
+    filter: drop-shadow(0 0 5px rgba(255, 190, 50, 0.55));
+    transform-origin: center bottom;
+}
+
+/* Pixel-like glow on interactive choices */
+.answer:hover,
+.number-card:hover {
+    filter: brightness(1.15);
+    outline: 2px solid rgba(255, 204, 80, 0.65);
+    outline-offset: 2px;
+}
+
+/* Golden glow for selected items */
+.selected {
+    filter: brightness(1.15);
+    box-shadow: 0 0 12px rgba(255, 196, 55, 0.35);
+}
+
+/* Retro focus effect for keyboard users */
+button:focus-visible,
+input:focus-visible {
+    outline: 3px dashed #ffd166;
+    outline-offset: 4px;
+}
+
+/* Keep animations comfortable on small screens */
+@media (max-width: 600px) {
+    .treasure-icon,
+    .treasure-chest {
+        filter: drop-shadow(0 0 3px rgba(255, 190, 50, 0.4));
+    }
+}
