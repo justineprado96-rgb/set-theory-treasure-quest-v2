@@ -272,6 +272,7 @@ function renderTreasureChallenge() {
         score += 10;
         feedback.textContent = `Correct! ${number} belongs to the target set. +10 points!`;
         feedback.className = "feedback good";
+        window.__treasureRewardMessage = "🪙 +10";
       } else {
         feedback.textContent = `${number} does not belong to the target set.`;
         feedback.className = "feedback bad";
@@ -279,6 +280,11 @@ function renderTreasureChallenge() {
       renderTreasureChallenge();
       document.getElementById("treasureFeedback").textContent = feedback.textContent;
       document.getElementById("treasureFeedback").className = feedback.className;
+      if (window.__treasureRewardMessage) {
+        const rewardMessage = window.__treasureRewardMessage;
+        window.__treasureRewardMessage = "";
+        spawnReward(rewardMessage);
+      }
     });
   });
 
@@ -360,6 +366,18 @@ function showQuestion(topicIndex) {
   }, 1000);
 }
 
+function spawnReward(text = "💎", extraClass = "") {
+  const reward = document.createElement("div");
+  reward.className = `floating-reward ${extraClass}`.trim();
+  reward.textContent = text;
+  reward.setAttribute("aria-hidden", "true");
+  gameContainer.appendChild(reward);
+  reward.addEventListener("animationend", () => reward.remove(), { once: true });
+  window.setTimeout(() => {
+    if (reward.isConnected) reward.remove();
+  }, 1600);
+}
+
 function checkAnswer(button, current, topicIndex) {
   if (answered) return;
   answered = true;
@@ -370,14 +388,21 @@ function checkAnswer(button, current, topicIndex) {
 
   gameContainer.querySelectorAll("[data-answer]").forEach(answerButton => {
     answerButton.disabled = true;
-    if (answerButton.dataset.answer === current.answer) answerButton.classList.add("correct");
+    if (answerButton.dataset.answer === current.answer) {
+      answerButton.classList.add("correct");
+    }
   });
 
   if (correct) {
     const earned = difficultySettings[difficulty].points;
     score += earned;
-    feedback.textContent = `Correct! +${earned} points!`;
-    feedback.className = "feedback good";
+    feedback.innerHTML = `
+      <span class="reward-icon" aria-hidden="true">💎</span>
+      <span>Correct! +${earned} points!</span>
+      <span class="reward-sparkle" aria-hidden="true">✨</span>
+    `;
+    feedback.className = "feedback good reward-feedback";
+    spawnReward(`💎 +${earned}`);
   } else {
     button.classList.add("wrong");
     feedback.textContent = `Not quite. Correct answer: ${current.answer}`;
@@ -386,7 +411,6 @@ function checkAnswer(button, current, topicIndex) {
 
   showContinueButton(topicIndex);
 }
-
 function handleTimeout(current, topicIndex) {
   answered = true;
   gameContainer.querySelectorAll("[data-answer]").forEach(button => {
@@ -396,6 +420,7 @@ function handleTimeout(current, topicIndex) {
   const feedback = document.getElementById("feedback");
   feedback.textContent = `Time's up! Correct answer: ${current.answer}`;
   feedback.className = "feedback bad";
+  spawnReward("⏳ TIME UP", "time-up-reward");
   showContinueButton(topicIndex);
 }
 
