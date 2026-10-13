@@ -1,131 +1,153 @@
 
 const gameContainer = document.querySelector(".game-container");
 
-let score = 0;
-let questionIndex = 0;
-let operationIndex = 0;
 let playerName = "";
-let activeSetQuestions = [];
-let activeOperationQuestions = [];
-let activeExtraQuestions = [];
-let extraTopicIndex = 0;
-let extraQuestionIndex = 0;
+let score = 0;
+let currentTopic = null;
+let questionIndex = 0;
+let questions = [];
+let timerId = null;
+let timeLeft = 20;
+let correctCount = 0;
 
-// RANDOM QUESTIONS
-function getRandomQuestions(questions, count) {
-    const shuffled = [...questions];
+const POINTS = 10;
+const TIME_LIMIT = 20;
 
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+const topics = [
+    {
+        id: "sets",
+        title: "📚 TYPES OF SETS",
+        hint: "Finite = limited, infinite = unlimited, empty = no elements, singleton = one element.",
+        questions: [
+            ["Which set contains a limited number of elements?", ["Finite Set", "Infinite Set", "Empty Set"], "Finite Set", "A finite set has a limited number of elements.", "Think of a set whose elements can be counted."],
+            ["Which set has no elements?", ["Singleton Set", "Empty Set", "Universal Set"], "Empty Set", "An empty set contains zero elements and is represented by ∅.", "It contains nothing."],
+            ["Which set contains exactly one element?", ["Infinite Set", "Singleton Set", "Empty Set"], "Singleton Set", "A singleton set contains exactly one element.", "The word single means one."],
+            ["Which set contains an unlimited number of elements?", ["Finite Set", "Empty Set", "Infinite Set"], "Infinite Set", "An infinite set has infinitely many elements.", "Its elements cannot be completely counted."],
+            ["If A = {1, 2} and B = {1, 2}, what is their relationship?", ["Equal Sets", "Disjoint Sets", "Empty Sets"], "Equal Sets", "Equal sets contain exactly the same elements.", "Compare all elements in both sets."],
+            ["If A = {1, 2} and B = {3, 4}, what are these sets?", ["Equal Sets", "Disjoint Sets", "Overlapping Sets"], "Disjoint Sets", "Disjoint sets have no elements in common.", "Do they share any elements?"],
+            ["If A = {1, 2} and B = {2, 3}, what type of sets are they?", ["Disjoint Sets", "Overlapping Sets", "Empty Sets"], "Overlapping Sets", "They overlap because both sets contain 2.", "Look for a shared element."],
+            ["Which symbol means 'is an element of'?", ["∈", "∪", "∩"], "∈", "The symbol ∈ means 'is an element of'.", "It describes membership in a set."],
+            ["If A = {2, 4, 6}, is 4 an element of A?", ["Yes", "No", "A is empty"], "Yes", "4 appears in set A, so it is an element.", "Check the numbers inside the braces."],
+            ["If A = {1, 2} and B = {1, 2, 3}, is A a subset of B?", ["Yes", "No", "They are disjoint"], "Yes", "Every element of A is also in B.", "Check whether both 1 and 2 appear in B."]
+        ]
+    },
+    {
+        id: "operations",
+        title: "🔢 SET OPERATIONS",
+        hint: "Union ∪ combines elements. Intersection ∩ finds common elements. Difference − removes elements found in the second set.",
+        questions: [
+            ["What is {1, 2} ∪ {2, 3}?", ["{2}", "{1, 2, 3}", "{1, 3}"], "{1, 2, 3}", "Union combines all distinct elements from both sets.", "Include every element without duplicates."],
+            ["What is {1, 2} ∩ {2, 3}?", ["{1, 2, 3}", "{1}", "{2}"], "{2}", "Only 2 appears in both sets.", "Intersection means elements shared by both sets."],
+            ["What is {1, 2} − {2, 3}?", ["{1}", "{2}", "{1, 2, 3}"], "{1}", "1 is in the first set but not the second.", "Remove from the first set anything found in the second."],
+            ["If U = {1, 2, 3, 4} and A = {1, 2}, what is Aᶜ?", ["{1, 2}", "{3, 4}", "{1, 2, 3, 4}"], "{3, 4}", "The complement contains elements in U that are not in A.", "Choose elements in U outside A."],
+            ["What is {a, b} ∪ {b, c}?", ["{b}", "{a, b, c}", "{a, c}"], "{a, b, c}", "The union includes a, b, and c once each.", "Combine the sets without repeating b."],
+            ["What is {2, 4, 6} ∩ {4, 6, 8}?", ["{2, 8}", "{4, 6}", "{2, 4, 6, 8}"], "{4, 6}", "Both sets contain 4 and 6.", "Find the shared numbers."],
+            ["What is {1, 2, 3} − {1, 3}?", ["{1, 3}", "{2}", "{1, 2, 3}"], "{2}", "Removing 1 and 3 leaves only 2.", "Cross out 1 and 3 from the first set."],
+            ["What is {1, 2} ∩ ∅?", ["{1, 2}", "{1}", "∅"], "∅", "No elements can be shared with an empty set.", "The empty set contains no elements."],
+            ["What does union combine?", ["All elements from both sets without duplicates", "Only common elements", "Only elements in the first set"], "All elements from both sets without duplicates", "Union combines distinct elements from the sets.", "Union uses the symbol ∪."],
+            ["What does A − B contain?", ["Elements in A that are not in B", "Elements in B that are not in A", "All elements in A and B"], "Elements in A that are not in B", "Set difference keeps elements belonging to A but not B.", "Start with A and remove B's elements."]
+        ]
+    },
+    {
+        id: "binary",
+        title: "💻 BINARY ADDITION",
+        hint: "Binary uses 0 and 1. Remember: 0+0=0, 0+1=1, and 1+1=10.",
+        questions: [
+            ["What is 0 + 0 in binary?", ["0", "1", "10"], "0", "Adding zero and zero gives zero.", "Start with the basic binary addition rules."],
+            ["What is 0 + 1 in binary?", ["0", "1", "10"], "1", "0 + 1 = 1.", "Adding zero does not change one."],
+            ["What is 1 + 1 in binary?", ["0", "1", "10"], "10", "Decimal 2 is written as 10 in binary.", "Remember to carry when adding 1 and 1."],
+            ["What is 1 + 1 + 1 in binary?", ["10", "11", "100"], "11", "Decimal 3 is written as 11 in binary.", "Convert the total of three into binary."],
+            ["What is 10₂ + 1₂?", ["10₂", "11₂", "100₂"], "11₂", "10₂ is 2 and 2 + 1 = 3, which is 11₂.", "Convert to decimal, add, then convert back."],
+            ["What is 11₂ + 1₂?", ["100₂", "101₂", "111₂"], "100₂", "11₂ is 3; 3 + 1 = 4, or 100₂.", "Think of decimal 3 plus 1."],
+            ["What is 101₂ + 10₂?", ["110₂", "111₂", "1000₂"], "111₂", "101₂ is 5 and 10₂ is 2; 5 + 2 = 7 = 111₂.", "Convert both numbers to decimal to check."],
+            ["What is 110₂ + 11₂?", ["1000₂", "1001₂", "1010₂"], "1001₂", "110₂ is 6 and 11₂ is 3; 9 is 1001₂.", "6 + 3 = 9 in decimal."]
+        ]
+    },
+    {
+        id: "conversion",
+        title: "🔄 NUMBER SYSTEM CONVERSIONS",
+        hint: "Binary place values are powers of 2. In hexadecimal, A=10, B=11, C=12, D=13, E=14, F=15.",
+        questions: [
+            ["What is decimal 5 in binary?", ["101", "110", "111"], "101", "Binary 101 represents 4 + 0 + 1 = 5.", "5 = 4 + 1."],
+            ["What is binary 1010₂ in decimal?", ["8", "10", "12"], "10", "1010₂ = 8 + 2 = 10.", "Use place values 8, 4, 2, 1."],
+            ["What is decimal 8 in binary?", ["1000", "1010", "1100"], "1000", "The binary place value for 8 is 1000₂.", "8 is 2³."],
+            ["What is binary 111₂ in decimal?", ["5", "6", "7"], "7", "111₂ = 4 + 2 + 1 = 7.", "Add 4 + 2 + 1."],
+            ["What is decimal 15 in hexadecimal?", ["E", "F", "10"], "F", "F represents decimal 15 in hexadecimal.", "Hexadecimal digits after 9 go A through F."],
+            ["What is hexadecimal A in decimal?", ["8", "10", "12"], "10", "Hexadecimal A represents decimal 10.", "A is the first hexadecimal letter after 9."],
+            ["What is decimal 16 in hexadecimal?", ["F", "10", "11"], "10", "Decimal 16 is written 10 in base 16.", "One full group of sixteen is 10 in hexadecimal."],
+            ["What is binary 10000₂ in decimal?", ["8", "16", "32"], "16", "10000₂ has a 1 in the 2⁴ place, which is 16.", "The leftmost 1 represents 16."]
+        ]
+    },
+    {
+        id: "boolean",
+        title: "⚡ BOOLEAN ALGEBRA",
+        hint: "In Boolean algebra, + means OR, · means AND, and A′ means NOT A.",
+        questions: [
+            ["What values can a Boolean variable have?", ["True or False (1 or 0)", "Any integer", "Only positive numbers"], "True or False (1 or 0)", "A Boolean variable has two possible values: true/1 or false/0.", "Boolean logic has only two states."],
+            ["What is the identity law for OR?", ["A + 0 = A", "A + 1 = A", "A · 0 = A"], "A + 0 = A", "OR with 0 leaves A unchanged.", "Look for the rule that leaves A as it is."],
+            ["What is the identity law for AND?", ["A · 1 = A", "A · 0 = A", "A + 1 = A"], "A · 1 = A", "AND with 1 leaves A unchanged.", "For AND, use 1 as the identity value."],
+            ["According to the complement law, A + A′ equals what?", ["A", "0", "1"], "1", "A OR NOT A is always true, so the result is 1.", "A or its opposite must be true."],
+            ["According to the complement law, A · A′ equals what?", ["1", "0", "A"], "0", "A AND NOT A is always false, so the result is 0.", "A cannot be true and false at once."],
+            ["Simplify A + A using the idempotent law.", ["0", "A", "1"], "A", "The idempotent law says A + A = A.", "A OR itself does not change A."],
+            ["Simplify A · (A + B) using the absorption law.", ["A", "B", "A + B"], "A", "The absorption law simplifies A · (A + B) to A.", "Use the absorption rule."],
+            ["Simplify AB + A′C + BC using the Consensus theorem.", ["AB + A′C", "AB + BC", "A′C + BC"], "AB + A′C", "The Consensus theorem removes the redundant BC term.", "BC is the redundant consensus term."]
+        ]
     }
+];
 
-    return shuffled.slice(0, count);
+function stopTimer() {
+    if (timerId) {
+        clearInterval(timerId);
+        timerId = null;
+    }
 }
 
-// TYPES OF SETS
-const setQuestions = [
-    { question: "Which set contains a limited number of elements?", choices: ["Finite Set", "Infinite Set", "Empty Set"], answer: "Finite Set" },
-    { question: "Which set has no elements?", choices: ["Singleton Set", "Empty Set", "Universal Set"], answer: "Empty Set" },
-    { question: "Which set contains exactly one element?", choices: ["Infinite Set", "Singleton Set", "Empty Set"], answer: "Singleton Set" },
-    { question: "Which set contains an unlimited number of elements?", choices: ["Finite Set", "Empty Set", "Infinite Set"], answer: "Infinite Set" },
-    { question: "If A = {1, 2} and B = {1, 2}, what is their relationship?", choices: ["Equal Sets", "Disjoint Sets", "Empty Sets"], answer: "Equal Sets" },
-    { question: "If A = {1, 2} and B = {3, 4}, what are these sets?", choices: ["Equal Sets", "Disjoint Sets", "Overlapping Sets"], answer: "Disjoint Sets" },
-    { question: "If A = {1, 2} and B = {2, 3}, what type of sets are they?", choices: ["Disjoint Sets", "Overlapping Sets", "Empty Sets"], answer: "Overlapping Sets" },
-    { question: "If every element of A is also in B, what is A in relation to B?", choices: ["A subset of B", "A disjoint set", "An infinite set"], answer: "A subset of B" },
-    { question: "Which symbol means 'is an element of'?", choices: ["∈", "∪", "∩"], answer: "∈" },
-    { question: "If A = {2, 4, 6}, is 4 an element of A?", choices: ["Yes", "No", "A is empty"], answer: "Yes" },
-    { question: "Which symbol means 'is a subset of'?", choices: ["⊆", "∩", "∪"], answer: "⊆" },
-    { question: "If A = {1, 2} and B = {1, 2, 3}, is A a subset of B?", choices: ["Yes", "No", "They are disjoint"], answer: "Yes" },
-    { question: "What is a proper subset?", choices: ["A subset that is not equal to the original set", "A set with no elements", "A set with infinite elements"], answer: "A subset that is not equal to the original set" },
-    { question: "If A = {1, 2} and B = {1, 2}, are they equivalent sets?", choices: ["Yes", "No", "They are disjoint"], answer: "Yes" },
-    { question: "What makes two finite sets equivalent?", choices: ["They have the same number of elements", "They have exactly the same elements", "They have no elements"], answer: "They have the same number of elements" },
-    { question: "What is the universal set?", choices: ["The set of all elements being considered", "A set with one element only", "A set with no elements"], answer: "The set of all elements being considered" },
-    { question: "Which symbol commonly represents the empty set?", choices: ["∅", "∪", "∈"], answer: "∅" },
-    { question: "If A = {a, b, c}, how many elements are in A?", choices: ["2", "3", "4"], answer: "3" },
-    { question: "If A = {1, 2, 3}, which statement is true?", choices: ["2 ∈ A", "5 ∈ A", "4 ∈ A"], answer: "2 ∈ A" },
-    { question: "If A = {1, 2} and B = {2, 3}, which element do they share?", choices: ["1", "2", "3"], answer: "2" }
-];
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function (c) {
+        return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        }[c];
+    });
+}
 
-// SET OPERATIONS
-const operationQuestions = [
-    { question: "What is {1, 2} ∪ {2, 3}?", choices: ["{2}", "{1, 2, 3}", "{1, 3}"], answer: "{1, 2, 3}" },
-    { question: "What is {1, 2} ∩ {2, 3}?", choices: ["{1, 2, 3}", "{1}", "{2}"], answer: "{2}" },
-    { question: "What is {1, 2} − {2, 3}?", choices: ["{1}", "{2}", "{1, 2, 3}"], answer: "{1}" },
-    { question: "If U = {1, 2, 3, 4} and A = {1, 2}, what is Aᶜ?", choices: ["{1, 2}", "{3, 4}", "{1, 2, 3, 4}"], answer: "{3, 4}" },
-    { question: "What is {a, b} ∪ {b, c}?", choices: ["{b}", "{a, b, c}", "{a, c}"], answer: "{a, b, c}" },
-    { question: "What is {2, 4, 6} ∩ {4, 6, 8}?", choices: ["{2, 8}", "{4, 6}", "{2, 4, 6, 8}"], answer: "{4, 6}" },
-    { question: "What is {1, 2, 3} − {1, 3}?", choices: ["{1, 3}", "{2}", "{1, 2, 3}"], answer: "{2}" },
-    { question: "If U = {a, b, c, d} and A = {a, c}, what is Aᶜ?", choices: ["{a, c}", "{b, d}", "{a, b, c, d}"], answer: "{b, d}" },
-    { question: "What is {1, 2} ∪ ∅?", choices: ["∅", "{1, 2}", "{1}"], answer: "{1, 2}" },
-    { question: "What is {1, 2} ∩ ∅?", choices: ["{1, 2}", "{1}", "∅"], answer: "∅" },
-    { question: "What is {3, 4, 5} − {4}?", choices: ["{4}", "{3, 5}", "{3, 4, 5}"], answer: "{3, 5}" },
-    { question: "What is {a, b, c} ∪ {c, d}?", choices: ["{c}", "{a, b, c, d}", "{a, b, d}"], answer: "{a, b, c, d}" },
-    { question: "What is {2, 4, 6} ∩ {1, 3, 5}?", choices: ["{2, 4, 6}", "{1, 3, 5}", "∅"], answer: "∅" },
-    { question: "If A = {1, 3, 5} and B = {1, 2, 3}, what is A − B?", choices: ["{1, 3}", "{5}", "{1, 2, 3, 5}"], answer: "{5}" },
-    { question: "If U = {1, 2, 3, 4, 5} and A = {2, 4}, what is Aᶜ?", choices: ["{2, 4}", "{1, 3, 5}", "{1, 2, 3, 4, 5}"], answer: "{1, 3, 5}" },
-    { question: "What does union combine?", choices: ["All elements from both sets without duplicates", "Only the common elements", "Only elements in the first set"], answer: "All elements from both sets without duplicates" },
-    { question: "What does intersection find?", choices: ["All elements from both sets", "Elements common to both sets", "Elements outside the universal set"], answer: "Elements common to both sets" },
-    { question: "What does A − B contain?", choices: ["Elements in A that are not in B", "Elements in B that are not in A", "All elements in A and B"], answer: "Elements in A that are not in B" },
-    { question: "The complement of A is defined relative to which set?", choices: ["The universal set", "The empty set only", "Any unrelated set"], answer: "The universal set" },
-    { question: "If A = {1, 2, 3} and B = {3, 4}, what is A ∪ B?", choices: ["{3}", "{1, 2, 3, 4}", "{1, 2, 4}"], answer: "{1, 2, 3, 4}" }
-];
+function shuffle(list) {
+    const array = [...list];
 
-// NEW TOPICS: BINARY ADDITION, NUMBER SYSTEMS, BOOLEAN ALGEBRA
-const extraTopics = [
-    {
-        title: "💻 BINARY ADDITION",
-        questions: [
-            { question: "What is 0 + 0 in binary?", choices: ["0", "1", "10"], answer: "0" },
-            { question: "What is 0 + 1 in binary?", choices: ["0", "1", "10"], answer: "1" },
-            { question: "What is 1 + 1 in binary?", choices: ["0", "1", "10"], answer: "10" },
-            { question: "What is 1 + 1 + 1 in binary?", choices: ["10", "11", "100"], answer: "11" },
-            { question: "What is 10₂ + 1₂?", choices: ["10₂", "11₂", "100₂"], answer: "11₂" },
-            { question: "What is 11₂ + 1₂?", choices: ["100₂", "101₂", "111₂"], answer: "100₂" },
-            { question: "What is 101₂ + 10₂?", choices: ["110₂", "111₂", "1000₂"], answer: "111₂" },
-            { question: "What is 110₂ + 11₂?", choices: ["1000₂", "1001₂", "1010₂"], answer: "1001₂" }
-        ]
-    },
-    {
-        title: "🔄 NUMBER SYSTEM CONVERSIONS",
-        questions: [
-            { question: "What is decimal 5 in binary?", choices: ["101", "110", "111"], answer: "101" },
-            { question: "What is binary 1010₂ in decimal?", choices: ["8", "10", "12"], answer: "10" },
-            { question: "What is decimal 8 in binary?", choices: ["1000", "1010", "1100"], answer: "1000" },
-            { question: "What is binary 111₂ in decimal?", choices: ["5", "6", "7"], answer: "7" },
-            { question: "What is decimal 15 in hexadecimal?", choices: ["E", "F", "10"], answer: "F" },
-            { question: "What is hexadecimal A in decimal?", choices: ["8", "10", "12"], answer: "10" },
-            { question: "What is decimal 16 in hexadecimal?", choices: ["F", "10", "11"], answer: "10" },
-            { question: "What is binary 10000₂ in decimal?", choices: ["8", "16", "32"], answer: "16" }
-        ]
-    },
-    {
-        title: "⚡ BOOLEAN ALGEBRA",
-        questions: [
-            { question: "What values can a Boolean variable have?", choices: ["True or False (1 or 0)", "Any integer", "Only positive numbers"], answer: "True or False (1 or 0)" },
-            { question: "What is the identity law for OR?", choices: ["A + 0 = A", "A + 1 = A", "A · 0 = A"], answer: "A + 0 = A" },
-            { question: "What is the identity law for AND?", choices: ["A · 1 = A", "A · 0 = A", "A + 1 = A"], answer: "A · 1 = A" },
-            { question: "According to the complement law, A + A′ equals what?", choices: ["A", "0", "1"], answer: "1" },
-            { question: "According to the complement law, A · A′ equals what?", choices: ["1", "0", "A"], answer: "0" },
-            { question: "Simplify A + A using the idempotent law.", choices: ["0", "A", "1"], answer: "A" },
-            { question: "Simplify A · (A + B) using the absorption law.", choices: ["A", "B", "A + B"], answer: "A" },
-            { question: "Simplify AB + A′C + BC using the Consensus theorem.", choices: ["AB + A′C", "AB + BC", "A′C + BC"], answer: "AB + A′C" }
-        ]
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
     }
-];
 
-// WELCOME SCREEN
+    return array;
+}
+
+// START SCREEN
 function showWelcomeScreen() {
+    stopTimer();
+
     gameContainer.innerHTML = `
         <div class="treasure-icon">💎 🗝️ 💰</div>
         <h1>THE SET THEORY<br>TREASURE QUEST</h1>
-        <p class="subtitle">Collect numbers. Solve set challenges. Find the treasure!</p>
+        <p class="subtitle">Choose a topic, solve questions, and collect treasure!</p>
         <div class="treasure-chest">🧰</div>
-        <p class="description">Enter your name and begin your mathematical treasure hunt!</p>
-        <input id="playerNameInput" type="text" maxlength="30" placeholder="Enter your player name">
-        <br>
+        <p class="description">Enter your player name to begin your adventure.</p>
+
+        <input
+            id="playerNameInput"
+            type="text"
+            maxlength="30"
+            placeholder="Enter your player name"
+            style="padding:12px;border-radius:8px;border:1px solid #d9aa48;max-width:90%;"
+        >
+
+        <br><br>
         <button id="startGameButton">START GAME</button>
-        <p class="topics">Set Membership • Types of Sets • Set Operations • Binary Addition • Number System Conversions • Boolean Algebra</p>
+
+        <p class="topics">Hints • Timer • Score • Correct answers and explanations</p>
     `;
 
     document.getElementById("startGameButton").onclick = function () {
@@ -137,318 +159,315 @@ function showWelcomeScreen() {
         }
 
         playerName = name;
-        score = 0;
-        questionIndex = 0;
-        operationIndex = 0;
-        extraTopicIndex = 0;
-        extraQuestionIndex = 0;
-
-        activeSetQuestions = getRandomQuestions(setQuestions, 8);
-        activeOperationQuestions = getRandomQuestions(operationQuestions, 8);
-
-        showTreasureChallenge();
+        showTopicSelection();
     };
 }
 
-// TREASURE BAG CHALLENGE
-function showTreasureChallenge() {
-    const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-    const shuffledTarget = getRandomQuestions(numbers, numbers.length);
-    const targetSize = Math.floor(Math.random() * 3) + 3;
-    const targetSet = shuffledTarget.slice(0, targetSize).sort((a, b) => a - b);
-    const playerCards = getRandomQuestions(numbers, 5);
-    const treasureBag = [];
-    let movesLeft = 5;
+// TOPIC SELECTION
+function showTopicSelection() {
+    stopTimer();
 
     gameContainer.innerHTML = `
-        <h1>💎 TREASURE BAG</h1>
+        <h1>🗺️ CHOOSE YOUR TOPIC</h1>
         <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-        <p class="description">Target Set: Add only numbers that belong to this set.</p>
-        <h2 style="color:#ffd36a;">{${targetSet.join(", ")}}</h2>
-        <p class="description">Choose from your five cards. You have <strong>5 moves</strong>.</p>
-        <div id="playerCards" class="number-cards"></div>
-        <h2>🎒 Your Treasure Bag</h2>
-        <p id="bagContents" class="description">Your bag is empty.</p>
-        <p id="message" class="description">Choose your first card!</p>
-        <p class="topics">Score: <span id="score">${score}</span> | Moves left: <span id="movesLeft">${movesLeft}</span></p>
+        <p class="description">Select one topic to practice, or play every topic.</p>
+
+        <div id="topicChoices"></div>
+
+        <button id="allTopicsButton">PLAY ALL TOPICS</button>
+        <br>
+        <button id="homeButton" class="secondary-button">HOME</button>
     `;
 
-    const cardsContainer = document.getElementById("playerCards");
+    const topicChoices = document.getElementById("topicChoices");
 
-    playerCards.forEach(function (number) {
+    topics.forEach(function (topic) {
         const button = document.createElement("button");
-        button.className = "number-card";
-        button.textContent = number;
-        button.style.cssText = "padding:15px 22px;margin:5px;font-size:24px;cursor:pointer;border:2px solid #d9aa48;border-radius:10px;background:#fff8e7;color:#17233a;";
+        button.textContent = topic.title;
 
-        button.onclick = function () {
-            if (movesLeft <= 0 || button.disabled) return;
-
-            movesLeft--;
-            button.disabled = true;
-            const message = document.getElementById("message");
-
-            if (targetSet.includes(number)) {
-                treasureBag.push(number);
-                score += 10;
-                message.textContent = `Correct! ${number} belongs to the target set. +10 points!`;
-            } else {
-                message.textContent = `${number} does not belong to the target set. No points this time.`;
-            }
-
-            document.getElementById("score").textContent = score;
-            document.getElementById("movesLeft").textContent = movesLeft;
-            document.getElementById("bagContents").textContent =
-                treasureBag.length > 0 ? `{${treasureBag.join(", ")}}` : "Your bag is empty.";
-
-            if (movesLeft === 0) {
-                document.querySelectorAll(".number-card").forEach(card => card.disabled = true);
-
-                const nextButton = document.createElement("button");
-                nextButton.id = "nextButton";
-                nextButton.textContent = "NEXT CHALLENGE";
-                gameContainer.appendChild(nextButton);
-
-                nextButton.onclick = function () {
-                    questionIndex = 0;
-                    showSetQuestion();
-                };
-            }
-        };
-
-        cardsContainer.appendChild(button);
-    });
-}
-
-// TYPES OF SETS CHALLENGE
-function showSetQuestion() {
-    if (questionIndex >= activeSetQuestions.length) {
-        gameContainer.innerHTML = `
-            <h1>📚 TYPES OF SETS COMPLETE!</h1>
-            <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-            <p class="description">You finished all 8 questions!</p>
-            <h2>Score: ${score}</h2>
-            <button id="nextOperations">NEXT: SET OPERATIONS</button>
+        button.style.cssText = `
+            display:block;
+            width:min(100%, 440px);
+            margin:10px auto;
+            padding:14px;
+            border:2px solid #d9aa48;
+            border-radius:12px;
+            background:#fff8e7;
+            color:#17233a;
+            font-size:17px;
+            cursor:pointer;
         `;
 
-        document.getElementById("nextOperations").onclick = function () {
-            operationIndex = 0;
-            showOperationQuestion();
+        button.onclick = function () {
+            startTopic(topic.id);
         };
 
-        return;
-    }
+        topicChoices.appendChild(button);
+    });
 
-    const current = activeSetQuestions[questionIndex];
+    document.getElementById("allTopicsButton").onclick = function () {
+        currentTopic = { id: "all", title: "ALL TOPICS" };
+        questions = [];
 
-    gameContainer.innerHTML = `
-        <h1>📚 TYPES OF SETS</h1>
-        <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-        <p class="topics">Question ${questionIndex + 1} of ${activeSetQuestions.length}</p>
-        <div class="progress-track">
-            <div class="progress-fill" style="width:${((questionIndex + 1) / activeSetQuestions.length) * 100}%"></div>
-        </div>
-        <p class="description">${current.question}</p>
-        <div id="answers"></div>
-        <p id="result" class="description">Choose your answer.</p>
-        <p class="topics">Score: <span id="score">${score}</span></p>
-    `;
-
-    const answersContainer = document.getElementById("answers");
-
-    current.choices.forEach(function (choice) {
-        const button = createAnswerButton(choice);
-
-        button.onclick = function () {
-            checkAnswer(choice, current.answer, "result", answersContainer, function () {
-                questionIndex++;
-                showSetQuestion();
+        topics.forEach(function (topic) {
+            shuffle(topic.questions).forEach(function (question) {
+                questions.push({
+                    data: question,
+                    topic: topic
+                });
             });
-        };
+        });
 
-        answersContainer.appendChild(button);
+        beginQuiz();
+    };
+
+    document.getElementById("homeButton").onclick = showWelcomeScreen;
+}
+
+function startTopic(id) {
+    const topic = topics.find(function (item) {
+        return item.id === id;
     });
-}
 
-// SET OPERATIONS CHALLENGE
-function showOperationQuestion() {
-    if (operationIndex >= activeOperationQuestions.length) {
-        gameContainer.innerHTML = `
-            <h1>🔢 SET OPERATIONS COMPLETE!</h1>
-            <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-            <p class="description">Next, continue to the additional math topics.</p>
-            <h2>Score: ${score}</h2>
-            <button id="nextExtraTopic">NEXT: BINARY ADDITION</button>
-        `;
+    currentTopic = topic;
 
-        document.getElementById("nextExtraTopic").onclick = function () {
-            extraTopicIndex = 0;
-            startExtraTopic();
+    questions = shuffle(topic.questions).map(function (question) {
+        return {
+            data: question,
+            topic: topic
         };
-
-        return;
-    }
-
-    const current = activeOperationQuestions[operationIndex];
-
-    gameContainer.innerHTML = `
-        <h1>🔢 SET OPERATIONS</h1>
-        <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-        <p class="topics">Question ${operationIndex + 1} of ${activeOperationQuestions.length}</p>
-        <div class="progress-track">
-            <div class="progress-fill" style="width:${((operationIndex + 1) / activeOperationQuestions.length) * 100}%"></div>
-        </div>
-        <p class="description">${current.question}</p>
-        <div id="operationAnswers"></div>
-        <p id="operationResult" class="description">Choose your answer.</p>
-        <p class="topics">Score: <span id="score">${score}</span></p>
-    `;
-
-    const answersContainer = document.getElementById("operationAnswers");
-
-    current.choices.forEach(function (choice) {
-        const button = createAnswerButton(choice);
-
-        button.onclick = function () {
-            checkAnswer(choice, current.answer, "operationResult", answersContainer, function () {
-                operationIndex++;
-                showOperationQuestion();
-            });
-        };
-
-        answersContainer.appendChild(button);
     });
+
+    beginQuiz();
 }
 
-// NEW TOPICS FLOW
-function startExtraTopic() {
-    if (extraTopicIndex >= extraTopics.length) {
-        showFinalResults();
+function beginQuiz() {
+    stopTimer();
+    score = 0;
+    correctCount = 0;
+    questionIndex = 0;
+
+    showQuestion();
+}
+
+// DISPLAY QUESTION
+function showQuestion() {
+    stopTimer();
+
+    if (questionIndex >= questions.length) {
+        showResults();
         return;
     }
 
-    activeExtraQuestions = getRandomQuestions(
-        extraTopics[extraTopicIndex].questions,
-        extraTopics[extraTopicIndex].questions.length
-    );
+    timeLeft = TIME_LIMIT;
 
-    extraQuestionIndex = 0;
-    showExtraQuestion();
-}
-
-function showExtraQuestion() {
-    const topic = extraTopics[extraTopicIndex];
-
-    if (extraQuestionIndex >= activeExtraQuestions.length) {
-        gameContainer.innerHTML = `
-            <h1>${topic.title} COMPLETE!</h1>
-            <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-            <p class="description">You finished all ${activeExtraQuestions.length} questions in this topic!</p>
-            <h2>Score: ${score}</h2>
-            <button id="nextExtraTopic">${extraTopicIndex < extraTopics.length - 1 ? "NEXT TOPIC" : "SEE FINAL RESULTS"}</button>
-        `;
-
-        document.getElementById("nextExtraTopic").onclick = function () {
-            extraTopicIndex++;
-            startExtraTopic();
-        };
-
-        return;
-    }
-
-    const current = activeExtraQuestions[extraQuestionIndex];
+    const item = questions[questionIndex];
+    const question = item.data;
+    const topic = item.topic;
 
     gameContainer.innerHTML = `
         <h1>${topic.title}</h1>
+
         <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
-        <p class="topics">Question ${extraQuestionIndex + 1} of ${activeExtraQuestions.length}</p>
+
+        <p class="topics">
+            Question ${questionIndex + 1} of ${questions.length}
+            | Score: <strong id="scoreDisplay">${score}</strong>
+        </p>
+
         <div class="progress-track">
-            <div class="progress-fill" style="width:${((extraQuestionIndex + 1) / activeExtraQuestions.length) * 100}%"></div>
+            <div class="progress-fill" style="width:${((questionIndex + 1) / questions.length) * 100}%"></div>
         </div>
-        <p class="description">${current.question}</p>
-        <div id="extraAnswers"></div>
-        <p id="extraResult" class="description">Choose your answer.</p>
-        <p class="topics">Score: <span id="score">${score}</span></p>
+
+        <p class="topics">
+            ⏱️ Time left: <strong id="timerDisplay">${timeLeft}</strong> seconds
+        </p>
+
+        <p class="description" style="font-size:19px;">
+            ${question[0]}
+        </p>
+
+        <div id="answers"></div>
+
+        <button id="hintButton" class="secondary-button">💡 SHOW HINT</button>
+
+        <p id="hintText" class="description" hidden></p>
+
+        <p id="feedback" class="description" aria-live="polite">
+            Choose your answer.
+        </p>
+
+        <button id="continueButton" hidden>CONTINUE</button>
+
+        <br>
+        <button id="menuButton" class="secondary-button">TOPIC MENU</button>
     `;
 
-    const answersContainer = document.getElementById("extraAnswers");
+    const answersContainer = document.getElementById("answers");
+    const answerChoices = shuffle(question[1]);
 
-    current.choices.forEach(function (choice) {
-        const button = createAnswerButton(choice);
+    answerChoices.forEach(function (choice) {
+        const button = document.createElement("button");
+        button.textContent = choice;
+
+        button.style.cssText = `
+            display:block;
+            width:min(100%, 440px);
+            margin:10px auto;
+            padding:12px 18px;
+            border:2px solid #d9aa48;
+            border-radius:10px;
+            background:#fff8e7;
+            color:#17233a;
+            font-size:16px;
+            cursor:pointer;
+        `;
 
         button.onclick = function () {
-            checkAnswer(choice, current.answer, "extraResult", answersContainer, function () {
-                extraQuestionIndex++;
-                showExtraQuestion();
-            });
+            answerQuestion(choice, false);
         };
 
         answersContainer.appendChild(button);
     });
-}
 
-// CREATE ANSWER BUTTON
-function createAnswerButton(choice) {
-    const button = document.createElement("button");
-    button.textContent = choice;
+    // CHECK ANSWER
+    function answerQuestion(choice, timedOut) {
+        if (document.getElementById("continueButton").hidden === false) {
+            return;
+        }
 
-    button.style.cssText = "display:block;margin:10px auto;padding:12px 20px;min-width:200px;cursor:pointer;border:2px solid #d9aa48;border-radius:10px;background:#fff8e7;color:#17233a;font-size:16px;";
+        stopTimer();
 
-    return button;
-}
+        answersContainer.querySelectorAll("button").forEach(function (button) {
+            button.disabled = true;
 
-// CHECK ANSWER AND UPDATE SCORE
-function checkAnswer(choice, correctAnswer, resultId, container, nextAction) {
-    container.querySelectorAll("button").forEach(function (answerButton) {
-        answerButton.disabled = true;
-    });
+            if (button.textContent === question[2]) {
+                button.style.background = "#c9f7d4";
+            }
 
-    if (choice === correctAnswer) {
-        score += 10;
-        document.getElementById(resultId).textContent = "Correct! You earned 10 points!";
-    } else {
-        document.getElementById(resultId).textContent = "Incorrect. Correct answer: " + correctAnswer;
+            if (choice !== question[2] && button.textContent === choice) {
+                button.style.background = "#ffd3d3";
+            }
+        });
+
+        const feedback = document.getElementById("feedback");
+
+        if (choice === question[2]) {
+            score += POINTS;
+            correctCount++;
+
+            feedback.innerHTML = `
+                ✅ <strong>Correct!</strong> +${POINTS} points.
+                <br>
+                <strong>Explanation:</strong> ${escapeHTML(question[3])}
+            `;
+        } else {
+            feedback.innerHTML = `
+                ${timedOut ? "⏰ Time is up!" : "❌ Incorrect."}
+                Correct answer: <strong>${escapeHTML(question[2])}</strong>.
+                <br>
+                <strong>Explanation:</strong> ${escapeHTML(question[3])}
+            `;
+        }
+
+        document.getElementById("scoreDisplay").textContent = score;
+
+        document.getElementById("hintButton").disabled = true;
+
+        const continueButton = document.getElementById("continueButton");
+        continueButton.hidden = false;
+        continueButton.textContent =
+            questionIndex === questions.length - 1
+                ? "SEE RESULTS"
+                : "CONTINUE";
+
+        continueButton.onclick = function () {
+            questionIndex++;
+            showQuestion();
+        };
     }
 
-    document.getElementById("score").textContent = score;
+    // HINT BUTTON
+    document.getElementById("hintButton").onclick = function () {
+        const hintText = document.getElementById("hintText");
 
-    const nextButton = document.createElement("button");
-    nextButton.textContent = "CONTINUE";
-    nextButton.onclick = nextAction;
-    gameContainer.appendChild(nextButton);
+        hintText.textContent = "💡 Hint: " + (question[4] || topic.hint);
+        hintText.hidden = false;
+        document.getElementById("hintButton").disabled = true;
+    };
+
+    // RETURN TO TOPIC MENU
+    document.getElementById("menuButton").onclick = showTopicSelection;
+
+    // TIMER
+    timerId = setInterval(function () {
+        timeLeft--;
+
+        const timerDisplay = document.getElementById("timerDisplay");
+
+        if (timerDisplay) {
+            timerDisplay.textContent = timeLeft;
+        }
+
+        if (timeLeft <= 0) {
+            answerQuestion(null, true);
+        }
+    }, 1000);
 }
 
 // FINAL RESULTS
-function showFinalResults() {
+function showResults() {
+    stopTimer();
+
+    const percentage = Math.round((correctCount / questions.length) * 100);
+
     gameContainer.innerHTML = `
         <div class="treasure-icon">🏆 💎 🏆</div>
-        <h1>TREASURE QUEST COMPLETE!</h1>
-        <p class="subtitle">Congratulations, ${escapeHTML(playerName)}!</p>
-        <p class="description">
-            You completed Treasure Bag, Types of Sets, Set Operations,
-            Binary Addition, Number System Conversions, and Boolean Algebra.
+
+        <h1>QUEST COMPLETE!</h1>
+
+        <p class="subtitle">
+            Well done, ${escapeHTML(playerName)}!
         </p>
-        <h2 style="font-size:32px;">Final Score: ${score}</h2>
-        <p class="topics">Maximum possible score: 450 points</p>
-        <button id="playAgainButton">PLAY AGAIN</button>
+
+        <p class="description">
+            Topic: ${escapeHTML(currentTopic.id === "all" ? "All Topics" : currentTopic.title)}
+        </p>
+
+        <h2>Final Score: ${score}</h2>
+
+        <p class="description">
+            Correct answers: ${correctCount} out of ${questions.length}
+            (${percentage}%).
+        </p>
+
+        <p class="description">
+            ${
+                percentage >= 80
+                    ? "Excellent work, treasure master!"
+                    : percentage >= 50
+                    ? "Good effort! Review the explanations and try again."
+                    : "Keep practicing. Use the hints and explanations to improve."
+            }
+        </p>
+
+        <button id="retryButton">PLAY AGAIN</button>
+        <br>
+        <button id="topicMenuButton">CHOOSE ANOTHER TOPIC</button>
+        <br>
+        <button id="homeButton" class="secondary-button">HOME</button>
     `;
 
-    document.getElementById("playAgainButton").onclick = showWelcomeScreen;
-}
+    document.getElementById("retryButton").onclick = function () {
+        if (currentTopic.id === "all") {
+            showTopicSelection();
+        } else {
+            startTopic(currentTopic.id);
+        }
+    };
 
-// SAFE PLAYER NAME DISPLAY
-function escapeHTML(value) {
-    return value.replace(/[&<>"']/g, function (character) {
-        const entities = {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#39;"
-        };
-
-        return entities[character];
-    });
+    document.getElementById("topicMenuButton").onclick = showTopicSelection;
+    document.getElementById("homeButton").onclick = showWelcomeScreen;
 }
 
 // START GAME
