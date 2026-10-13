@@ -1,0 +1,493 @@
+
+/* =========================================
+   THE SET THEORY TREASURE QUEST
+   Modern Treasure Adventure Theme
+========================================= */
+
+:root {
+    --navy: #10182d;
+    --navy-light: #1a2743;
+    --panel: rgba(29, 43, 70, 0.94);
+    --gold: #ffd36a;
+    --gold-dark: #d9a83f;
+    --cream: #fff8e7;
+    --white: #ffffff;
+    --muted: #c4cce0;
+    --green: #5be0a0;
+    --red: #ff8585;
+    --border: rgba(255, 211, 106, 0.35);
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+/* RESET */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    min-height: 100%;
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    padding: 30px 16px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+
+    font-family: "Trebuchet MS", Arial, sans-serif;
+    color: var(--white);
+
+    background:
+        radial-gradient(
+            circle at 15% 20%,
+            rgba(61, 87, 139, 0.38),
+            transparent 35%
+        ),
+        radial-gradient(
+            circle at 85% 80%,
+            rgba(150, 103, 30, 0.18),
+            transparent 35%
+        ),
+        linear-gradient(135deg, #0b1120, #14223e 55%, #10182d);
+}
+
+/* SUBTLE BACKGROUND STARS */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(circle, rgba(255, 211, 106, 0.65) 1px, transparent 1.5px),
+        radial-gradient(circle, rgba(255, 255, 255, 0.35) 1px, transparent 1.5px);
+
+    background-size: 95px 95px, 145px 145px;
+    background-position: 0 0, 40px 55px;
+    opacity: 0.32;
+}
+
+/* MAIN GAME PANEL */
+.game-container {
+    width: 100%;
+    max-width: 850px;
+    min-height: 500px;
+    margin: auto;
+    padding: 42px 32px;
+
+    text-align: center;
+
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+
+    backdrop-filter: blur(12px);
+    animation: panelAppear 0.65s ease both;
+}
+
+/* HEADINGS */
+h1 {
+    margin-bottom: 18px;
+    color: var(--gold);
+
+    font-size: clamp(27px, 5vw, 43px);
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: 1.5px;
+
+    text-shadow: 0 0 22px rgba(255, 211, 106, 0.18);
+}
+
+h2 {
+    margin: 20px 0 12px;
+    color: var(--gold);
+    font-size: clamp(21px, 4vw, 30px);
+}
+
+h3 {
+    margin-bottom: 12px;
+    color: var(--gold);
+}
+
+p {
+    line-height: 1.7;
+}
+
+/* TEXT STYLES */
+.subtitle {
+    margin-bottom: 22px;
+    color: var(--muted);
+    font-size: 16px;
+}
+
+.description {
+    max-width: 650px;
+    margin: 18px auto;
+    color: var(--cream);
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.topics {
+    margin-top: 22px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+/* TREASURE EMOJIS */
+.treasure-icon {
+    margin-bottom: 20px;
+    font-size: clamp(34px, 6vw, 55px);
+    letter-spacing: 8px;
+    animation: treasureFloat 3s ease-in-out infinite;
+}
+
+.treasure-chest {
+    margin: 24px 0;
+    font-size: 78px;
+    filter: drop-shadow(0 0 18px rgba(255, 211, 106, 0.28));
+    animation: treasureFloat 3s ease-in-out infinite;
+}
+
+/* PLAYER NAME INPUT */
+input[type="text"] {
+    width: 100%;
+    max-width: 370px;
+    margin: 12px auto 20px;
+    padding: 15px 18px;
+
+    display: inline-block;
+
+    color: var(--white);
+    background: rgba(9, 16, 32, 0.8);
+
+    border: 1px solid rgba(255, 211, 106, 0.45);
+    border-radius: 14px;
+    outline: none;
+
+    font-family: inherit;
+    font-size: 16px;
+
+    transition:
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+input[type="text"]::placeholder {
+    color: #a8b2ca;
+}
+
+input[type="text"]:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 4px rgba(255, 211, 106, 0.12);
+}
+
+/* ALL BUTTONS */
+button {
+    min-height: 46px;
+    margin: 8px 5px;
+    padding: 12px 22px;
+
+    color: #17213a;
+    background: linear-gradient(135deg, #ffe49b, #ffc84c);
+
+    border: 1px solid #ffe8ac;
+    border-radius: 13px;
+
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+
+    cursor: pointer;
+    box-shadow: 0 5px 0 #a97923;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: brightness(1.08);
+    box-shadow: 0 8px 0 #a97923, 0 10px 25px rgba(255, 211, 106, 0.16);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(2px);
+    box-shadow: 0 2px 0 #a97923;
+}
+
+button:focus-visible {
+    outline: 3px solid var(--white);
+    outline-offset: 4px;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+    filter: grayscale(0.55);
+    box-shadow: none;
+}
+
+/* START AND PLAY AGAIN BUTTONS */
+#startGameButton,
+#playAgainButton {
+    min-width: 200px;
+    margin-top: 8px;
+    padding: 15px 28px;
+
+    color: #151d31;
+    background: linear-gradient(135deg, #ffe9a8, #f4b932);
+
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+/* NEXT CHALLENGE BUTTON */
+#nextButton,
+#nextOperations,
+#startGameButton,
+#playAgainButton {
+    animation: buttonAppear 0.4s ease both;
+}
+
+/* ANSWER BUTTONS */
+#answers button,
+#operationAnswers button {
+    display: block;
+    width: 100%;
+    max-width: 540px;
+    min-height: 54px;
+
+    margin: 12px auto;
+    padding: 14px 18px;
+
+    color: var(--cream);
+    background: linear-gradient(135deg, #243657, #1a2945);
+
+    border: 1px solid rgba(255, 211, 106, 0.35);
+    border-radius: 14px;
+
+    text-align: left;
+    line-height: 1.5;
+    font-size: 15px;
+    font-weight: 600;
+
+    box-shadow: 0 4px 0 #0a1120;
+}
+
+#answers button:hover:not(:disabled),
+#operationAnswers button:hover:not(:disabled) {
+    color: var(--gold);
+    background: #2d4165;
+    border-color: var(--gold);
+    box-shadow: 0 6px 0 #0a1120;
+}
+
+/* NUMBER CARDS */
+.number-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin: 24px auto;
+}
+
+.number-card {
+    width: 66px;
+    min-width: 55px;
+    min-height: 70px;
+
+    margin: 0;
+    padding: 12px;
+
+    color: #17213a !important;
+    background: linear-gradient(145deg, #fff6d8, #e7c36c) !important;
+
+    border: 2px solid #ffe49b !important;
+    border-radius: 14px !important;
+
+    font-size: 26px !important;
+    font-weight: 900 !important;
+
+    box-shadow: 0 5px 0 #987025 !important;
+}
+
+.number-card:hover:not(:disabled) {
+    transform: translateY(-5px) rotate(-2deg);
+    box-shadow: 0 10px 0 #987025 !important;
+}
+
+.number-card:disabled {
+    opacity: 0.35;
+    filter: grayscale(0.8);
+}
+
+/* SCORE AND MOVE INFORMATION */
+#score {
+    color: var(--gold);
+    font-weight: 900;
+    font-size: 19px;
+}
+
+#movesLeft {
+    color: var(--gold);
+    font-weight: 900;
+}
+
+/* PROGRESS BAR */
+.progress-track {
+    width: 100%;
+    max-width: 500px;
+    height: 13px;
+
+    margin: 15px auto 28px;
+
+    background: #0b1222;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #d9a83f, #ffe49b);
+    border-radius: 20px;
+
+    box-shadow: 0 0 15px rgba(255, 211, 106, 0.3);
+
+    transition: width 0.35s ease;
+}
+
+/* RESULT MESSAGES */
+#result,
+#operationResult,
+#message {
+    padding: 12px;
+    border-radius: 12px;
+    color: var(--cream);
+}
+
+/* TREASURE BAG CONTENTS */
+#bagContents {
+    display: inline-block;
+    min-width: 180px;
+    padding: 12px 20px;
+
+    color: var(--gold);
+    background: rgba(10, 17, 32, 0.7);
+
+    border: 1px dashed var(--gold-dark);
+    border-radius: 12px;
+
+    font-weight: 800;
+}
+
+/* ANIMATIONS */
+@keyframes panelAppear {
+    from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes treasureFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes buttonAppear {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TABLET AND MOBILE */
+@media (max-width: 600px) {
+    body {
+        padding: 14px 10px;
+        align-items: flex-start;
+    }
+
+    .game-container {
+        min-height: 0;
+        padding: 28px 17px;
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-size: 28px;
+        letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+        font-size: 14px;
+    }
+
+    .description {
+        font-size: 15px;
+    }
+
+    .treasure-chest {
+        font-size: 65px;
+    }
+
+    .number-cards {
+        gap: 8px;
+    }
+
+    .number-card {
+        width: 54px;
+        min-width: 48px;
+        min-height: 58px;
+        padding: 8px;
+        font-size: 22px !important;
+    }
+
+    #answers button,
+    #operationAnswers button {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    button {
+        max-width: 100%;
+    }
+}
+
+/* REDUCE ANIMATION WHEN REQUESTED BY DEVICE */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
