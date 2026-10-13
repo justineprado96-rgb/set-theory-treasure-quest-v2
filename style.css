@@ -987,3 +987,64 @@ button:disabled {
         animation: none;
     }
 }
+
+/* ===================================
+   STEP 5: PIXEL TREASURE CARD EFFECTS
+=================================== */
+
+@keyframes treasurePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(255, 209, 102, 0);
+    }
+    50% {
+        box-shadow: 0 0 14px rgba(255, 209, 102, 0.22);
+    }
+}
+
+.selection-group,
+.topic-grid,
+.difficulty-options {
+    transition: border-color 0.2s ease;
+}
+
+.topic-grid button,
+.difficulty-options button {
+    transition:
+        transform 0.15s steps(3, end),
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.topic-grid button:hover,
+.difficulty-options button:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.12);
+}
+
+.topic-grid button.selected,
+.difficulty-options button.selected {
+    border-color: #ffd166;
+    animation: treasurePulse 1.8s steps(4, end) infinite;
+}
+
+/* Pixel-like edges for game panels */
+.question-card,
+.selection-group,
+.stat {
+    border-radius: 4px;
+}
+
+/* Keep the effects subtle on smaller screens */
+@media (max-width: 600px) {
+    .topic-grid button:hover,
+    .difficulty-options button:hover {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .topic-grid button.selected,
+    .difficulty-options button.selected {
+        animation: none;
+    }
+}
