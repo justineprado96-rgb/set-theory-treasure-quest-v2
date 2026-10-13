@@ -230,3 +230,154 @@ footer {
   .stat strong { font-size: 18px; }
   button { padding: 12px 14px; }
 }
+
+/* =====================================
+   PIXEL TREASURE QUEST - ANIMATION PACK
+   ===================================== */
+
+/* Retro pixel-art colors and edges */
+:root {
+    --pixel-gold: #ffd166;
+    --pixel-blue: #32c5ff;
+    --pixel-dark: #07132f;
+}
+
+/* Animated starry background */
+body {
+    background-color: var(--pixel-dark);
+    background-image:
+        radial-gradient(#ffd166 1.5px, transparent 2px),
+        radial-gradient(#32c5ff 1.5px, transparent 2px),
+        linear-gradient(135deg, #07132f, #102858, #080e25);
+    background-size: 55px 55px, 83px 83px, 100% 100%;
+    animation: pixelSky 18s linear infinite;
+}
+
+@keyframes pixelSky {
+    from {
+        background-position: 0 0, 25px 40px, center;
+    }
+    to {
+        background-position: 55px 55px, 108px 123px, center;
+    }
+}
+
+/* Pixel-style game panel */
+.game-container {
+    border: 3px solid #4269ad !important;
+    border-radius: 5px !important;
+    box-shadow:
+        0 0 0 4px #101e45,
+        0 0 25px rgba(50, 197, 255, 0.2),
+        8px 8px 0 #050b1b !important;
+    animation: pixelEnter 0.55s steps(5, end) both;
+}
+
+@keyframes pixelEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Pixel text glow */
+h1, h2, h3 {
+    text-shadow:
+        2px 2px 0 #75471b,
+        0 0 12px rgba(255, 209, 102, 0.28);
+}
+
+/* Floating treasure icons */
+.treasure-icon,
+.treasure-chest {
+    display: inline-block;
+    image-rendering: pixelated;
+    animation: treasureBounce 1.8s steps(4, end) infinite;
+}
+
+@keyframes treasureBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Retro game buttons */
+button {
+    border: 2px solid #fff0bd !important;
+    border-radius: 3px !important;
+    box-shadow:
+        0 5px 0 #9b681b,
+        0 0 0 2px #30254b !important;
+    transition:
+        transform 0.15s steps(3, end),
+        filter 0.15s ease,
+        box-shadow 0.15s ease !important;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.025);
+    filter: brightness(1.15);
+    box-shadow:
+        0 7px 0 #9b681b,
+        0 0 14px rgba(255, 209, 102, 0.55) !important;
+}
+
+button:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #9b681b !important;
+}
+
+/* Pixel-style answer cards */
+#answers button,
+#operationAnswers button {
+    border: 2px solid #4269ad !important;
+    border-radius: 3px !important;
+    box-shadow: 0 4px 0 #050b1b !important;
+}
+
+#answers button:hover:not(:disabled),
+#operationAnswers button:hover:not(:disabled) {
+    border-color: var(--pixel-gold) !important;
+    box-shadow:
+        0 5px 0 #050b1b,
+        0 0 12px rgba(50, 197, 255, 0.25) !important;
+}
+
+/* Shimmering progress bar */
+.progress-fill {
+    background: repeating-linear-gradient(
+        90deg,
+        #ffd166 0px,
+        #ffd166 12px,
+        #ffeb9c 12px,
+        #ffeb9c 18px
+    ) !important;
+    background-size: 36px 100% !important;
+    animation: pixelProgress 0.8s linear infinite;
+}
+
+@keyframes pixelProgress {
+    from { background-position: 0 0; }
+    to { background-position: 36px 0; }
+}
+
+/* Selected focus glow */
+button:focus-visible,
+input[type="text"]:focus-visible {
+    outline: 3px solid #32c5ff;
+    outline-offset: 4px;
+}
+
+/* Keep animations comfortable for everyone */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
