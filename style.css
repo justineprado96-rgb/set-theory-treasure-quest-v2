@@ -381,3 +381,330 @@ input[type="text"]:focus-visible {
         transition-duration: 0.01ms !important;
     }
 }
+
+/* ==========================================
+   PIXEL TREASURE QUEST - ANIMATION UPGRADE
+   Add this at the END of style.css
+========================================== */
+
+/* Retro pixel font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --pixel-gold: #ffd166;
+  --pixel-blue: #58c7ff;
+  --pixel-purple: #9b7bff;
+  --pixel-dark: #101a35;
+  --pixel-border: #426cc1;
+}
+
+/* Animated arcade background */
+body {
+  background-color: #0b1735;
+  background-image:
+    radial-gradient(circle, #ffd166 1.5px, transparent 2px),
+    radial-gradient(circle, #55d9ff 1.5px, transparent 2px),
+    linear-gradient(135deg, #102650, #091329 75%);
+  background-size: 59px 59px, 83px 83px, 100% 100%;
+  background-position: 0 0, 25px 35px, center;
+  animation: pixelStarMove 18s linear infinite;
+}
+
+@keyframes pixelStarMove {
+  from {
+    background-position: 0 0, 25px 35px, center;
+  }
+  to {
+    background-position: 118px 118px, -58px 118px, center;
+  }
+}
+
+/* Main game panel */
+.game-container {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 4px solid var(--pixel-border);
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 4px #081329,
+    0 0 22px rgba(75, 160, 255, 0.22),
+    8px 8px 0 rgba(0, 0, 0, 0.3);
+  animation: pixelPanelEnter 0.45s steps(5, end) both;
+}
+
+/* Keep game content above decorative pixels */
+.game-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pixelPanelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pixel-style headings */
+.game-container h1 {
+  font-family: "Press Start 2P", monospace;
+  line-height: 1.7;
+  text-shadow:
+    3px 3px 0 #8a5728,
+    5px 5px 0 rgba(0, 0, 0, 0.35);
+  animation: pixelTitlePop 0.5s steps(4, end) both;
+}
+
+@keyframes pixelTitlePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Floating treasure icons */
+.treasure-icon {
+  display: inline-block;
+  image-rendering: pixelated;
+  animation: treasureFloat 2s ease-in-out infinite;
+  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.25));
+}
+
+@keyframes treasureFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(3deg);
+  }
+}
+
+/* Treasure chest bounce */
+.treasure-chest {
+  display: inline-block;
+  animation: chestBounce 1.8s steps(4, end) infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes chestBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Arcade buttons */
+.game-container button {
+  transition:
+    transform 0.12s steps(2, end),
+    box-shadow 0.12s steps(2, end),
+    filter 0.12s ease;
+  image-rendering: pixelated;
+  box-shadow: 0 4px 0 #81551d;
+}
+
+.game-container button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  filter: brightness(1.12);
+  box-shadow:
+    0 7px 0 #81551d,
+    0 0 12px rgba(255, 209, 102, 0.25);
+}
+
+.game-container button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #81551d;
+}
+
+.game-container button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Difficulty and topic cards */
+.difficulty-options button,
+.topic-grid button,
+.number-card {
+  border-radius: 3px;
+  border: 2px solid var(--pixel-gold);
+}
+
+.topic-grid button {
+  animation: pixelCardAppear 0.35s steps(4, end) both;
+}
+
+.topic-grid button:nth-child(2) { animation-delay: 0.04s; }
+.topic-grid button:nth-child(3) { animation-delay: 0.08s; }
+.topic-grid button:nth-child(4) { animation-delay: 0.12s; }
+.topic-grid button:nth-child(5) { animation-delay: 0.16s; }
+.topic-grid button:nth-child(6) { animation-delay: 0.20s; }
+
+@keyframes pixelCardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Answer choices */
+.answer {
+  animation: answerAppear 0.25s steps(3, end) both;
+}
+
+.answer:nth-child(2) { animation-delay: 0.06s; }
+.answer:nth-child(3) { animation-delay: 0.12s; }
+.answer:nth-child(4) { animation-delay: 0.18s; }
+
+@keyframes answerAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Correct and incorrect answer effects */
+.game-container button.correct {
+  animation: correctPixelFlash 0.45s steps(3, end);
+}
+
+.game-container button.wrong {
+  animation: wrongPixelShake 0.3s steps(4, end);
+}
+
+@keyframes correctPixelFlash {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.7);
+    box-shadow: 0 0 0 3px #4ee58b;
+  }
+}
+
+@keyframes wrongPixelShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* Score and timer emphasis */
+.stat strong {
+  display: inline-block;
+  color: var(--pixel-gold);
+  text-shadow: 2px 2px 0 #81551d;
+  animation: statPixelPulse 2s steps(3, end) infinite;
+}
+
+@keyframes statPixelPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Question progress bar */
+.progress-track {
+  overflow: hidden;
+  border: 2px solid var(--pixel-blue);
+  border-radius: 2px;
+}
+
+.progress-fill {
+  transition: width 0.35s steps(6, end);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0,
+    rgba(255, 255, 255, 0.12) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+
+/* Hint and feedback pop-in */
+.hint-box,
+.feedback {
+  animation: feedbackPop 0.2s steps(3, end);
+}
+
+@keyframes feedbackPop {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Number cards in Treasure Bag */
+.number-card {
+  animation: coinBounce 1.6s ease-in-out infinite;
+}
+
+.number-card:nth-child(even) {
+  animation-delay: 0.25s;
+}
+
+@keyframes coinBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Keyboard focus */
+.game-container button:focus-visible,
+.game-container input:focus-visible {
+  outline: 3px dashed var(--pixel-blue);
+  outline-offset: 4px;
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .game-container h1 {
+    font-size: clamp(17px, 4vw, 25px);
+    line-height: 1.8;
+  }
+
+  .game-container {
+    border-width: 3px;
+    box-shadow: 0 0 0 2px #081329;
+  }
+
+  .difficulty-options {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Respect players who prefer less animation */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
