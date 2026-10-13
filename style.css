@@ -1095,3 +1095,65 @@ button:disabled {
         padding: 10px;
     }
 }
+
+
+/* === Treasure reward effects: additive, safe overrides === */
+.game-container { position: relative; }
+.reward-feedback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+}
+.reward-icon {
+  display: inline-block;
+  font-size: 1.8em;
+  animation: rewardDiamondPop .65s ease-out;
+}
+.reward-sparkle {
+  display: inline-block;
+  animation: rewardSparkleSpin .8s ease-out;
+}
+.floating-reward {
+  position: absolute;
+  z-index: 20;
+  top: 42%;
+  left: 50%;
+  pointer-events: none;
+  color: #ffe27a;
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 #6c3e13, 0 0 16px rgba(255, 209, 102, .8);
+  animation: rewardFloatUp 1.25s ease-out forwards;
+}
+.floating-reward.time-up-reward {
+  color: #ff9c9c;
+  text-shadow: 2px 2px 0 #541d36, 0 0 12px rgba(255, 100, 100, .5);
+}
+@keyframes rewardDiamondPop {
+  0% { opacity: 0; transform: scale(.25) rotate(-25deg); }
+  65% { opacity: 1; transform: scale(1.35) rotate(9deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes rewardSparkleSpin {
+  0% { opacity: 0; transform: scale(0) rotate(-90deg); }
+  70% { opacity: 1; transform: scale(1.25) rotate(180deg); }
+  100% { opacity: 1; transform: scale(1) rotate(360deg); }
+}
+@keyframes rewardFloatUp {
+  0% { opacity: 0; transform: translate(-50%, 18px) scale(.65); }
+  22% { opacity: 1; transform: translate(-50%, -8px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -90px) scale(1); }
+}
+.feedback.good { position: relative; }
+.feedback.bad { position: relative; }
+@media (max-width: 520px) {
+  .floating-reward { top: 38%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reward-icon, .reward-sparkle, .floating-reward { animation: none !important; }
+  .floating-reward { display: none; }
+}
