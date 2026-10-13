@@ -1,388 +1,450 @@
 
-const game = document.querySelector(".game-container");
+"use strict";
 
-const questions = {
-  "Types of Sets": {
-    Easy: [
-      { q: "What is a set with no elements called?", choices: ["Universal set", "Empty set", "Finite set", "Equal set"], answer: 1, hint: "It contains zero elements.", explanation: "An empty set has no elements and is written as ∅ or {}." },
-      { q: "Which symbol means 'belongs to'?", choices: ["∈", "∪", "∩", "⊆"], answer: 0, hint: "It shows that an element is inside a set.", explanation: "The symbol ∈ means 'is an element of' a set." },
-      { q: "Which set contains {1, 2, 3} and has exactly three elements?", choices: ["Empty set", "Infinite set", "Finite set", "Universal set"], answer: 2, hint: "The number of elements can be counted.", explanation: "A finite set has a limited number of elements." }
-    ],
-    Medium: [
-      { q: "If A = {2, 4, 6} and B = {2, 4, 6}, what is their relationship?", choices: ["Disjoint", "Equal", "Empty", "Infinite"], answer: 1, hint: "Compare all the elements in both sets.", explanation: "Equal sets contain exactly the same elements." },
-      { q: "If A = {1, 2} and B = {1, 2, 3}, which statement is true?", choices: ["B ⊆ A", "A ⊆ B", "A = B", "A and B are disjoint"], answer: 1, hint: "Every element of A is also in B.", explanation: "A is a subset of B because every element of A belongs to B." },
-      { q: "What kind of sets have no common elements?", choices: ["Equal sets", "Overlapping sets", "Disjoint sets", "Universal sets"], answer: 2, hint: "Their intersection is empty.", explanation: "Disjoint sets share no elements, so their intersection is ∅." }
-    ],
-    Hard: [
-      { q: "If A = {1, 2, 3, 4}, how many subsets does A have?", choices: ["4", "8", "12", "16"], answer: 3, hint: "Use the formula 2ⁿ, where n is the number of elements.", explanation: "A set with 4 elements has 2⁴ = 16 subsets, including ∅ and A." },
-      { q: "If a set has 5 elements, how many proper subsets does it have?", choices: ["32", "31", "25", "10"], answer: 1, hint: "Find 2⁵, then exclude the set itself.", explanation: "There are 2⁵ = 32 subsets. Excluding the set itself leaves 31 proper subsets." },
-      { q: "If A ⊆ B and B ⊆ A, what must be true?", choices: ["A and B are disjoint", "A is empty", "A = B", "A has more elements"], answer: 2, hint: "Each set contains every element of the other.", explanation: "When each set is a subset of the other, the sets are equal." }
-    ]
-  },
+const gameContainer = document.querySelector(".game-container");
 
-  "Set Operations": {
-    Easy: [
-      { q: "If A = {1, 2} and B = {2, 3}, what is A ∪ B?", choices: ["{2}", "{1, 2, 3}", "{1, 3}", "{1, 2, 2, 3}"], answer: 1, hint: "Union combines elements without duplicates.", explanation: "A ∪ B = {1, 2, 3}. Repeated elements are written only once." },
-      { q: "If A = {1, 2, 3} and B = {2, 3, 4}, what is A ∩ B?", choices: ["{1, 4}", "{1, 2, 3, 4}", "{2, 3}", "∅"], answer: 2, hint: "Find the elements shared by both sets.", explanation: "The intersection contains common elements: {2, 3}." },
-      { q: "If A = {1, 2, 3} and B = {2}, what is A − B?", choices: ["{2}", "{1, 3}", "{1, 2, 3}", "∅"], answer: 1, hint: "Remove the elements of B from A.", explanation: "A − B = {1, 3} because 2 is removed from A." }
-    ],
-    Medium: [
-      { q: "A = {1, 2, 3, 4} and B = {3, 4, 5}. Find A ∪ B.", choices: ["{3, 4}", "{1, 2, 3, 4, 5}", "{1, 2, 5}", "{1, 2, 3, 4, 3, 4, 5}"], answer: 1, hint: "Combine all distinct elements.", explanation: "The union is {1, 2, 3, 4, 5}." },
-      { q: "A = {a, b, c, d} and B = {b, d}. Find A − B.", choices: ["{b, d}", "{a, c}", "{a, b, c, d}", "∅"], answer: 1, hint: "Remove b and d from A.", explanation: "Removing B's elements from A leaves {a, c}." },
-      { q: "If A = {1, 2} and B = {3, 4}, what is A ∩ B?", choices: ["{1, 2, 3, 4}", "{1, 3}", "∅", "{2, 4}"], answer: 2, hint: "Do the sets share any elements?", explanation: "There are no common elements, so the intersection is empty." }
-    ],
-    Hard: [
-      { q: "If n(A) = 12, n(B) = 9, and n(A ∩ B) = 4, find n(A ∪ B).", choices: ["25", "21", "17", "13"], answer: 2, hint: "Use n(A ∪ B) = n(A) + n(B) − n(A ∩ B).", explanation: "12 + 9 − 4 = 17. Subtract the intersection to avoid counting it twice." },
-      { q: "In a class of 30 students, 18 like Math, 15 like Science, and 8 like both. How many like at least one?", choices: ["33", "25", "23", "15"], answer: 1, hint: "Use the union formula.", explanation: "18 + 15 − 8 = 25 students like at least one subject." },
-      { q: "If U = {1, 2, 3, 4, 5, 6} and A = {2, 4, 6}, find A′.", choices: ["{2, 4, 6}", "{1, 3, 5}", "{1, 2, 3}", "∅"], answer: 1, hint: "Find elements in U that are not in A.", explanation: "The complement of A is {1, 3, 5}, the elements of U outside A." }
-    ]
-  },
-
-  "Binary Addition": {
-    Easy: [
-      { q: "What is 1 + 1 in binary?", choices: ["1", "10", "11", "0"], answer: 1, hint: "Two in decimal is written with two binary digits.", explanation: "1 + 1 = 10 in binary: write 0 and carry 1." },
-      { q: "What is 1 + 0 in binary?", choices: ["0", "10", "1", "11"], answer: 2, hint: "Adding zero does not change the value.", explanation: "1 + 0 = 1." },
-      { q: "What is 0 + 0 in binary?", choices: ["0", "1", "10", "11"], answer: 0, hint: "Neither digit contributes a value.", explanation: "0 + 0 = 0." }
-    ],
-    Medium: [
-      { q: "Calculate 101 + 011 in binary.", choices: ["110", "100", "1000", "111"], answer: 2, hint: "Work from right to left and carry when needed.", explanation: "101₂ (5) + 011₂ (3) = 1000₂ (8)." },
-      { q: "Calculate 110 + 010 in binary.", choices: ["100", "1000", "111", "1100"], answer: 1, hint: "110₂ is 6 and 010₂ is 2.", explanation: "6 + 2 = 8, which is 1000₂." },
-      { q: "Calculate 111 + 001 in binary.", choices: ["111", "1000", "101", "110"], answer: 1, hint: "Adding one to 111 causes carries in every column.", explanation: "111₂ (7) + 001₂ (1) = 1000₂ (8)." }
-    ],
-    Hard: [
-      { q: "Calculate 1011 + 1101 in binary.", choices: ["10100", "11000", "11010", "11100"], answer: 1, hint: "Convert them to decimal to check your result.", explanation: "1011₂ = 11 and 1101₂ = 13. Their sum is 24, or 11000₂." },
-      { q: "Calculate 11101 + 10111 in binary.", choices: ["110100", "101100", "111000", "110000"], answer: 0, hint: "The decimal values are 29 and 23.", explanation: "29 + 23 = 52, which is 110100₂." },
-      { q: "Calculate 101101 + 11101 in binary.", choices: ["1001010", "1101010", "1011010", "1111010"], answer: 0, hint: "Convert to decimal: 45 + 29.", explanation: "45 + 29 = 74, which is 1001010₂." }
-    ]
-  },
-
-  "Number System Conversions": {
-    Easy: [
-      { q: "What is binary 10 in decimal?", choices: ["1", "2", "10", "3"], answer: 1, hint: "The rightmost digit represents 1; the next represents 2.", explanation: "10₂ = 2₁₀." },
-      { q: "What is decimal 5 in binary?", choices: ["100", "101", "110", "111"], answer: 1, hint: "5 = 4 + 1.", explanation: "5₁₀ = 101₂." },
-      { q: "What is decimal 8 in binary?", choices: ["1000", "1010", "1100", "1111"], answer: 0, hint: "8 is 2 raised to the third power.", explanation: "8₁₀ = 1000₂." }
-    ],
-    Medium: [
-      { q: "Convert binary 1101 to decimal.", choices: ["11", "12", "13", "14"], answer: 2, hint: "Calculate 8 + 4 + 0 + 1.", explanation: "1101₂ = 8 + 4 + 0 + 1 = 13₁₀." },
-      { q: "Convert decimal 18 to binary.", choices: ["10010", "10100", "11000", "10001"], answer: 0, hint: "18 = 16 + 2.", explanation: "18₁₀ = 10010₂." },
-      { q: "What is hexadecimal A in decimal?", choices: ["8", "9", "10", "11"], answer: 2, hint: "Hexadecimal digits continue after 9.", explanation: "In hexadecimal, A represents decimal 10." }
-    ],
-    Hard: [
-      { q: "Convert binary 101101 to decimal.", choices: ["43", "44", "45", "46"], answer: 2, hint: "Add the place values for the 1 digits: 32, 8, 4, and 1.", explanation: "101101₂ = 32 + 8 + 4 + 1 = 45₁₀." },
-      { q: "Convert decimal 255 to hexadecimal.", choices: ["EF", "FE", "FF", "F0"], answer: 2, hint: "Each hexadecimal F represents 15.", explanation: "255₁₀ = FF₁₆ because 15 × 16 + 15 = 255." },
-      { q: "Convert binary 11111111 to hexadecimal.", choices: ["EE", "FE", "FF", "1FF"], answer: 2, hint: "Split into two groups of four bits: 1111 and 1111.", explanation: "Each 1111 group equals F in hexadecimal, so the answer is FF₁₆." }
-    ]
-  },
-
-  "Boolean Algebra": {
-    Easy: [
-      { q: "What is 1 AND 1?", choices: ["0", "1", "10", "Undefined"], answer: 1, hint: "AND is true only when both inputs are true.", explanation: "1 AND 1 = 1." },
-      { q: "What is 1 OR 0?", choices: ["0", "1", "10", "Undefined"], answer: 1, hint: "OR is true when at least one input is true.", explanation: "1 OR 0 = 1." },
-      { q: "What is NOT 1?", choices: ["1", "0", "10", "11"], answer: 1, hint: "NOT reverses the input.", explanation: "NOT 1 = 0." }
-    ],
-    Medium: [
-      { q: "What is (1 AND 0) OR 1?", choices: ["0", "1", "10", "Undefined"], answer: 1, hint: "Evaluate the AND expression first.", explanation: "1 AND 0 = 0, then 0 OR 1 = 1." },
-      { q: "According to the identity law, what is A OR 0?", choices: ["0", "1", "A", "NOT A"], answer: 2, hint: "OR with false leaves A unchanged.", explanation: "A OR 0 = A. This is the identity law for OR." },
-      { q: "What is A AND 1 according to the identity law?", choices: ["1", "0", "A", "NOT A"], answer: 2, hint: "AND with true leaves A unchanged.", explanation: "A AND 1 = A. This is the identity law for AND." }
-    ],
-    Hard: [
-      { q: "Simplify A OR (A AND B).", choices: ["A", "B", "A AND B", "A OR B"], answer: 0, hint: "Use the absorption law.", explanation: "By the absorption law, A OR (A AND B) = A." },
-      { q: "Using De Morgan's law, NOT(A AND B) equals:", choices: ["NOT A AND NOT B", "NOT A OR NOT B", "A OR B", "A AND B"], answer: 1, hint: "Negating AND changes it to OR and negates both inputs.", explanation: "De Morgan's law states NOT(A AND B) = NOT A OR NOT B." },
-      { q: "If A = 1 and B = 0, what is NOT(A OR B)?", choices: ["0", "1", "10", "Undefined"], answer: 0, hint: "Find A OR B first, then negate it.", explanation: "1 OR 0 = 1, and NOT 1 = 0." }
-    ]
-  }
-};
-
-const topicNames = Object.keys(questions);
 let playerName = "";
-let selectedTopic = "ALL";
 let difficulty = "Easy";
-let questionList = [];
-let currentQuestion = 0;
 let score = 0;
-let correctAnswers = 0;
-let timer = null;
+let questionIndex = 0;
+let activeQuestions = [];
+let timerId = null;
 let timeLeft = 30;
 let answered = false;
+let usedHint = false;
+let treasureMoves = 5;
+let targetSet = [];
+let treasureBag = [];
+let playerCards = [];
 
-const settings = {
-  Easy: { time: 30, points: 10 },
-  Medium: { time: 20, points: 20 },
-  Hard: { time: 10, points: 30 }
+const difficultySettings = {
+  Easy: { seconds: 30, points: 10, count: 5 },
+  Medium: { seconds: 20, points: 20, count: 7 },
+  Hard: { seconds: 12, points: 30, count: 8 }
 };
 
-const style = document.createElement("style");
-style.textContent = `
-.game-container { max-width: 850px; margin: 25px auto; padding: 20px; font-family: Arial, sans-serif; color: #24180f; }
-.game-container * { box-sizing: border-box; }
-.tq-card { background: #fffaf0; border: 2px solid #e8c982; border-radius: 18px; padding: 24px; box-shadow: 0 8px 24px #00000012; }
-.tq-title { text-align: center; color: #7a350b; margin-top: 0; }
-.tq-subtitle { text-align: center; color: #775e44; }
-.tq-label { display: block; margin: 16px 0 7px; font-weight: bold; }
-.tq-input, .tq-select { width: 100%; padding: 12px; border: 1px solid #c9b18b; border-radius: 9px; font-size: 16px; background: white; }
-.tq-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(135px, 1fr)); gap: 12px; margin: 12px 0; }
-.tq-choice { background: white; border: 2px solid #e5d3ad; border-radius: 12px; padding: 15px 10px; cursor: pointer; font-weight: bold; }
-.tq-choice:hover { border-color: #a45a12; background: #fff1ce; }
-.tq-choice.active { border-color: #a45a12; background: #ffebbb; }
-.tq-btn { display: inline-block; border: 0; border-radius: 9px; padding: 12px 18px; margin: 5px 5px 5px 0; cursor: pointer; font-size: 15px; font-weight: bold; background: #8a3e0c; color: white; }
-.tq-btn.secondary { background: #5c6470; }
-.tq-btn:disabled { opacity: .5; cursor: not-allowed; }
-.tq-full { width: 100%; margin-top: 18px; }
-.tq-meta { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-weight: bold; margin-bottom: 12px; }
-.tq-bar { height: 10px; border-radius: 20px; background: #eadfce; overflow: hidden; margin: 10px 0 20px; }
-.tq-bar-fill { height: 100%; width: 0; background: #c47b16; transition: width .25s; }
-.tq-question { font-size: 22px; line-height: 1.4; }
-.tq-answer { display: block; width: 100%; text-align: left; padding: 13px; margin: 9px 0; border: 1px solid #d7c4a2; border-radius: 10px; background: white; cursor: pointer; font-size: 16px; }
-.tq-answer:hover:not(:disabled) { background: #fff0cc; }
-.tq-answer.correct { background: #dcfce7; border-color: #16a34a; }
-.tq-answer.wrong { background: #fee2e2; border-color: #dc2626; }
-.tq-feedback { padding: 14px; border-radius: 10px; background: #f2eadb; line-height: 1.6; margin-top: 15px; }
-.tq-small { color: #6b5b48; font-size: 14px; }
-@media(max-width:500px) { .tq-card { padding: 16px; } .tq-question { font-size: 19px; } }
-`;
-document.head.appendChild(style);
+const topics = [
+  {
+    title: "📚 TYPES OF SETS",
+    questions: [
+      { question: "Which set contains a limited number of elements?", choices: ["Finite Set", "Infinite Set", "Empty Set"], answer: "Finite Set", hint: "Its number of elements can be counted." },
+      { question: "Which set has no elements?", choices: ["Singleton Set", "Empty Set", "Universal Set"], answer: "Empty Set", hint: "It is also called the null set." },
+      { question: "Which set contains exactly one element?", choices: ["Infinite Set", "Singleton Set", "Empty Set"], answer: "Singleton Set", hint: "Think of a set with just one member." },
+      { question: "Which set contains an unlimited number of elements?", choices: ["Finite Set", "Empty Set", "Infinite Set"], answer: "Infinite Set", hint: "Its elements never end." },
+      { question: "If A = {1, 2} and B = {1, 2}, what is their relationship?", choices: ["Equal Sets", "Disjoint Sets", "Empty Sets"], answer: "Equal Sets", hint: "Both sets have the exact same elements." },
+      { question: "If A = {1, 2} and B = {3, 4}, what are these sets?", choices: ["Equal Sets", "Disjoint Sets", "Overlapping Sets"], answer: "Disjoint Sets", hint: "They have no common elements." },
+      { question: "If A = {1, 2} and B = {2, 3}, what type of sets are they?", choices: ["Disjoint Sets", "Overlapping Sets", "Empty Sets"], answer: "Overlapping Sets", hint: "They share one element." },
+      { question: "If every element of A is also in B, what is A in relation to B?", choices: ["A subset of B", "A disjoint set", "An infinite set"], answer: "A subset of B", hint: "Use the subset relationship." },
+      { question: "Which symbol means 'is an element of'?", choices: ["∈", "∪", "∩"], answer: "∈", hint: "This symbol indicates membership." },
+      { question: "If A = {2, 4, 6}, is 4 an element of A?", choices: ["Yes", "No", "A is empty"], answer: "Yes", hint: "Check whether 4 appears in A." },
+      { question: "Which symbol means 'is a subset of'?", choices: ["⊆", "∩", "∪"], answer: "⊆", hint: "It represents a subset." },
+      { question: "If A = {1, 2} and B = {1, 2, 3}, is A a subset of B?", choices: ["Yes", "No", "They are disjoint"], answer: "Yes", hint: "Every element of A appears in B." },
+      { question: "What is a proper subset?", choices: ["A subset that is not equal to the original set", "A set with no elements", "A set with infinite elements"], answer: "A subset that is not equal to the original set", hint: "It is a subset but not the same set." },
+      { question: "What makes two finite sets equivalent?", choices: ["They have the same number of elements", "They have exactly the same elements", "They have no elements"], answer: "They have the same number of elements", hint: "Compare their cardinalities." },
+      { question: "What is the universal set?", choices: ["The set of all elements being considered", "A set with one element only", "A set with no elements"], answer: "The set of all elements being considered", hint: "It contains the elements under discussion." },
+      { question: "Which symbol commonly represents the empty set?", choices: ["∅", "∪", "∈"], answer: "∅", hint: "It looks like a crossed-out circle." },
+      { question: "If A = {a, b, c}, how many elements are in A?", choices: ["2", "3", "4"], answer: "3", hint: "Count each different element." },
+      { question: "If A = {1, 2, 3}, which statement is true?", choices: ["2 ∈ A", "5 ∈ A", "4 ∈ A"], answer: "2 ∈ A", hint: "Check which number belongs to A." },
+      { question: "If A = {1, 2} and B = {2, 3}, which element do they share?", choices: ["1", "2", "3"], answer: "2", hint: "Find the common element." }
+    ]
+  },
+  {
+    title: "🔢 SET OPERATIONS",
+    questions: [
+      { question: "What is {1, 2} ∪ {2, 3}?", choices: ["{2}", "{1, 2, 3}", "{1, 3}"], answer: "{1, 2, 3}", hint: "Union combines elements without duplicates." },
+      { question: "What is {1, 2} ∩ {2, 3}?", choices: ["{1, 2, 3}", "{1}", "{2}"], answer: "{2}", hint: "Intersection means common elements." },
+      { question: "What is {1, 2} − {2, 3}?", choices: ["{1}", "{2}", "{1, 2, 3}"], answer: "{1}", hint: "Keep elements in the first set only." },
+      { question: "If U = {1, 2, 3, 4} and A = {1, 2}, what is Aᶜ?", choices: ["{1, 2}", "{3, 4}", "{1, 2, 3, 4}"], answer: "{3, 4}", hint: "Complement contains elements in U but not A." },
+      { question: "What is {a, b} ∪ {b, c}?", choices: ["{b}", "{a, b, c}", "{a, c}"], answer: "{a, b, c}", hint: "Combine all unique elements." },
+      { question: "What is {2, 4, 6} ∩ {4, 6, 8}?", choices: ["{2, 8}", "{4, 6}", "{2, 4, 6, 8}"], answer: "{4, 6}", hint: "Choose the elements in both sets." },
+      { question: "What is {1, 2, 3} − {1, 3}?", choices: ["{1, 3}", "{2}", "{1, 2, 3}"], answer: "{2}", hint: "Remove 1 and 3 from the first set." },
+      { question: "If U = {a, b, c, d} and A = {a, c}, what is Aᶜ?", choices: ["{a, c}", "{b, d}", "{a, b, c, d}"], answer: "{b, d}", hint: "Find the elements of U not in A." },
+      { question: "What is {1, 2} ∪ ∅?", choices: ["∅", "{1, 2}", "{1}"], answer: "{1, 2}", hint: "Union with the empty set adds nothing." },
+      { question: "What is {1, 2} ∩ ∅?", choices: ["{1, 2}", "{1}", "∅"], answer: "∅", hint: "There are no shared elements." },
+      { question: "What is {3, 4, 5} − {4}?", choices: ["{4}", "{3, 5}", "{3, 4, 5}"], answer: "{3, 5}", hint: "Remove 4 from the first set." },
+      { question: "What is {a, b, c} ∪ {c, d}?", choices: ["{c}", "{a, b, c, d}", "{a, b, d}"], answer: "{a, b, c, d}", hint: "List every element only once." },
+      { question: "What is {2, 4, 6} ∩ {1, 3, 5}?", choices: ["{2, 4, 6}", "{1, 3, 5}", "∅"], answer: "∅", hint: "Do these sets share any elements?" },
+      { question: "If A = {1, 3, 5} and B = {1, 2, 3}, what is A − B?", choices: ["{1, 3}", "{5}", "{1, 2, 3, 5}"], answer: "{5}", hint: "Keep elements in A that are not in B." },
+      { question: "What does union combine?", choices: ["All elements from both sets without duplicates", "Only the common elements", "Only elements in the first set"], answer: "All elements from both sets without duplicates", hint: "Union is the combined set." },
+      { question: "What does intersection find?", choices: ["All elements from both sets", "Elements common to both sets", "Elements outside the universal set"], answer: "Elements common to both sets", hint: "Think about overlap." },
+      { question: "What does A − B contain?", choices: ["Elements in A that are not in B", "Elements in B that are not in A", "All elements in A and B"], answer: "Elements in A that are not in B", hint: "The order of subtraction matters." },
+      { question: "The complement of A is defined relative to which set?", choices: ["The universal set", "The empty set only", "Any unrelated set"], answer: "The universal set", hint: "It establishes the full group of possible elements." }
+    ]
+  },
+  {
+    title: "💻 BINARY ADDITION",
+    questions: [
+      { question: "What is 0 + 0 in binary?", choices: ["0", "1", "10"], answer: "0", hint: "Adding two zeroes gives zero." },
+      { question: "What is 0 + 1 in binary?", choices: ["0", "1", "10"], answer: "1", hint: "One plus zero is one." },
+      { question: "What is 1 + 1 in binary?", choices: ["0", "1", "10"], answer: "10", hint: "Binary uses base two, so carry a one." },
+      { question: "What is 1 + 1 + 1 in binary?", choices: ["10", "11", "100"], answer: "11", hint: "Three in decimal is 11 in binary." },
+      { question: "What is 10₂ + 1₂?", choices: ["10₂", "11₂", "100₂"], answer: "11₂", hint: "Two plus one equals three." },
+      { question: "What is 11₂ + 1₂?", choices: ["100₂", "101₂", "111₂"], answer: "100₂", hint: "Three plus one equals four." },
+      { question: "What is 101₂ + 10₂?", choices: ["110₂", "111₂", "1000₂"], answer: "111₂", hint: "Five plus two equals seven." },
+      { question: "What is 110₂ + 11₂?", choices: ["1000₂", "1001₂", "1010₂"], answer: "1001₂", hint: "Six plus three equals nine." }
+    ]
+  },
+  {
+    title: "🔄 NUMBER SYSTEM CONVERSIONS",
+    questions: [
+      { question: "What is decimal 5 in binary?", choices: ["101", "110", "111"], answer: "101", hint: "Four plus one equals five." },
+      { question: "What is binary 1010₂ in decimal?", choices: ["8", "10", "12"], answer: "10", hint: "Eight plus two equals ten." },
+      { question: "What is decimal 8 in binary?", choices: ["1000", "1010", "1100"], answer: "1000", hint: "Eight is 2³." },
+      { question: "What is binary 111₂ in decimal?", choices: ["5", "6", "7"], answer: "7", hint: "Four plus two plus one." },
+      { question: "What is decimal 15 in hexadecimal?", choices: ["E", "F", "10"], answer: "F", hint: "Hexadecimal digits A through F represent 10 through 15." },
+      { question: "What is hexadecimal A in decimal?", choices: ["8", "10", "12"], answer: "10", hint: "A is the first letter used for a two-digit decimal value." },
+      { question: "What is decimal 16 in hexadecimal?", choices: ["F", "10", "11"], answer: "10", hint: "A new hexadecimal place begins at sixteen." },
+      { question: "What is binary 10000₂ in decimal?", choices: ["8", "16", "32"], answer: "16", hint: "The leftmost 1 represents 2 to the fourth power." }
+    ]
+  },
+  {
+    title: "⚡ BOOLEAN ALGEBRA",
+    questions: [
+      { question: "What values can a Boolean variable have?", choices: ["True or False (1 or 0)", "Any integer", "Only positive numbers"], answer: "True or False (1 or 0)", hint: "Boolean logic has two possible values." },
+      { question: "What is the identity law for OR?", choices: ["A + 0 = A", "A + 1 = A", "A · 0 = A"], answer: "A + 0 = A", hint: "OR with zero does not change A." },
+      { question: "What is the identity law for AND?", choices: ["A · 1 = A", "A · 0 = A", "A + 1 = A"], answer: "A · 1 = A", hint: "AND with one does not change A." },
+      { question: "According to the complement law, A + A′ equals what?", choices: ["A", "0", "1"], answer: "1", hint: "A value OR its complement is always true." },
+      { question: "According to the complement law, A · A′ equals what?", choices: ["1", "0", "A"], answer: "0", hint: "A value AND its opposite is always false." },
+      { question: "Simplify A + A using the idempotent law.", choices: ["0", "A", "1"], answer: "A", hint: "Repeating the same value with OR changes nothing." },
+      { question: "Simplify A · (A + B) using the absorption law.", choices: ["A", "B", "A + B"], answer: "A", hint: "Apply the absorption law." },
+      { question: "Simplify AB + A′C + BC using the Consensus theorem.", choices: ["AB + A′C", "AB + BC", "A′C + BC"], answer: "AB + A′C", hint: "The consensus term BC is redundant." }
+    ]
+  }
+];
 
-function render(html) {
-  game.innerHTML = html;
+function shuffle(items) {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
-function showWelcome() {
-  clearInterval(timer);
-  render(`
-    <div class="tq-card">
-      <h1 class="tq-title">🏴‍☠️ The Set Theory Treasure Quest</h1>
-      <p class="tq-subtitle">Answer questions, earn points, and find the treasure!</p>
-      <label class="tq-label" for="playerName">Enter your name</label>
-      <input class="tq-input" id="playerName" placeholder="Your name..." maxlength="30">
-      <button class="tq-btn tq-full" id="continueBtn">Continue ➜</button>
-    </div>
-  `);
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, ch => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[ch]);
+}
 
-  document.getElementById("continueBtn").onclick = () => {
-    const name = document.getElementById("playerName").value.trim();
-    if (!name) {
-      alert("Please enter your name first, pare!");
-      return;
-    }
+function stopTimer() {
+  if (timerId !== null) clearInterval(timerId);
+  timerId = null;
+}
+
+function showWelcomeScreen() {
+  stopTimer();
+  gameContainer.innerHTML = `
+    <div class="treasure-icon">💎 🗝️ 💰</div>
+    <h1>THE SET THEORY<br>TREASURE QUEST</h1>
+    <p class="subtitle">Collect numbers. Solve set challenges. Find the treasure!</p>
+    <div class="treasure-chest">🧰</div>
+    <p class="description">Enter your name to begin your mathematical treasure hunt.</p>
+    <form id="nameForm">
+      <input id="playerNameInput" maxlength="30" autocomplete="name"
+        placeholder="Enter your player name" required>
+      <button type="submit">START GAME →</button>
+    </form>
+    <p class="topics">Types of Sets · Set Operations · Binary Addition · Number Systems · Boolean Algebra</p>
+  `;
+
+  document.getElementById("nameForm").addEventListener("submit", event => {
+    event.preventDefault();
+    const name = document.getElementById("playerNameInput").value.trim();
+    if (!name) return;
     playerName = name;
-    showTopicSelection();
-  };
+    score = 0;
+    showDifficultySelection();
+  });
 }
 
-function showTopicSelection() {
-  const topicButtons = topicNames.map(topic => `
-    <button class="tq-choice" data-topic="${topic}">${topic}</button>
-  `).join("");
-
-  render(`
-    <div class="tq-card">
-      <h2 class="tq-title">Welcome, ${escapeHTML(playerName)}! 🗺️</h2>
-      <p class="tq-subtitle">Step 1: Choose your topic</p>
-      <div class="tq-grid">
-        <button class="tq-choice active" data-topic="ALL">🌟 All Topics</button>
-        ${topicButtons}
+function showDifficultySelection() {
+  stopTimer();
+  gameContainer.innerHTML = `
+    <div class="treasure-icon">🗝️ 💎</div>
+    <h1>CHOOSE YOUR DIFFICULTY</h1>
+    <p class="subtitle">Welcome, ${escapeHTML(playerName)}!</p>
+    <p class="description">Choose how challenging your treasure hunt should be.</p>
+    <div class="selection-group">
+      <h2>SELECT DIFFICULTY</h2>
+      <div class="difficulty-options">
+        <button class="${difficulty === "Easy" ? "selected" : "secondary"}" data-difficulty="Easy">🌱 EASY</button>
+        <button class="${difficulty === "Medium" ? "selected" : "secondary"}" data-difficulty="Medium">⚔️ MEDIUM</button>
+        <button class="${difficulty === "Hard" ? "selected" : "secondary"}" data-difficulty="Hard">🔥 HARD</button>
       </div>
-      <p class="tq-subtitle">Step 2: Choose your difficulty</p>
-      <div class="tq-grid">
-        <button class="tq-choice active" data-difficulty="Easy">🟢 Easy</button>
-        <button class="tq-choice" data-difficulty="Medium">🔵 Medium</button>
-        <button class="tq-choice" data-difficulty="Hard">🔴 Hard</button>
-      </div>
-      <div class="tq-feedback" id="difficultyInfo">
-        <b>🟢 Easy</b><br>30 seconds per question · 10 points per correct answer
-      </div>
-      <button class="tq-btn tq-full" id="startBtn">Start Treasure Hunt 🚀</button>
-      <p class="tq-small">Hint: Hard mode gives more points, but you have less time!</p>
+      <p id="difficultyInfo" class="description"></p>
     </div>
-  `);
+    <button id="continueButton">CONTINUE TO TOPICS →</button>
+  `;
 
-  document.querySelectorAll("[data-topic]").forEach(button => {
-    button.onclick = () => {
-      document.querySelectorAll("[data-topic]").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
-      selectedTopic = button.dataset.topic;
-    };
-  });
+  function updateDifficultyInfo() {
+    const setting = difficultySettings[difficulty];
+    document.getElementById("difficultyInfo").textContent =
+      `${difficulty}: ${setting.seconds} seconds per question · ${setting.points} points for each correct answer · ${setting.count} questions per topic`;
+  }
 
-  document.querySelectorAll("[data-difficulty]").forEach(button => {
-    button.onclick = () => {
-      document.querySelectorAll("[data-difficulty]").forEach(b => b.classList.remove("active"));
-      button.classList.add("active");
+  gameContainer.querySelectorAll("[data-difficulty]").forEach(button => {
+    button.addEventListener("click", () => {
       difficulty = button.dataset.difficulty;
-      const s = settings[difficulty];
-      const colors = { Easy: "🟢", Medium: "🔵", Hard: "🔴" };
-      document.getElementById("difficultyInfo").innerHTML =
-        `<b>${colors[difficulty]} ${difficulty}</b><br>${s.time} seconds per question · ${s.points} points per correct answer`;
-    };
-  });
-
-  document.getElementById("startBtn").onclick = startGame;
-}
-
-function startGame() {
-  questionList = [];
-
-  const topics = selectedTopic === "ALL" ? topicNames : [selectedTopic];
-
-  topics.forEach(topic => {
-    questions[topic][difficulty].forEach(question => {
-      questionList.push({ ...question, topic });
+      gameContainer.querySelectorAll("[data-difficulty]").forEach(item => {
+        item.className = item.dataset.difficulty === difficulty ? "selected" : "secondary";
+      });
+      updateDifficultyInfo();
     });
   });
 
-  currentQuestion = 0;
-  score = 0;
-  correctAnswers = 0;
-  showQuestion();
+  updateDifficultyInfo();
+  document.getElementById("continueButton").addEventListener("click", showTopicSelection);
 }
 
-function showQuestion() {
-  clearInterval(timer);
-  answered = false;
+function showTopicSelection() {
+  stopTimer();
+  gameContainer.innerHTML = `
+    <div class="treasure-icon">🗺️</div>
+    <h1>CHOOSE YOUR CHALLENGE</h1>
+    <p class="subtitle">Player: ${escapeHTML(playerName)} · Difficulty: ${difficulty}</p>
+    <div class="stats">
+      <div class="stat"><strong>${score}</strong><span>Current Score</span></div>
+      <div class="stat"><strong>${difficultySettings[difficulty].seconds}s</strong><span>Per Question</span></div>
+      <div class="stat"><strong>5</strong><span>Topics</span></div>
+    </div>
+    <div class="selection-group">
+      <h2>SELECT A TOPIC</h2>
+      <div class="topic-grid">
+        <button data-topic="treasure">💎 Treasure Bag Challenge</button>
+        ${topics.map((topic, i) => `<button data-topic="${i}">${topic.title}</button>`).join("")}
+      </div>
+    </div>
+    <button class="secondary" id="changeDifficulty">← Change Difficulty</button>
+  `;
 
-  if (currentQuestion >= questionList.length) {
-    showResults();
+  gameContainer.querySelectorAll("[data-topic]").forEach(button => {
+    button.addEventListener("click", () => {
+      if (button.dataset.topic === "treasure") {
+        startTreasureChallenge();
+      } else {
+        startTopic(Number(button.dataset.topic));
+      }
+    });
+  });
+
+  document.getElementById("changeDifficulty").addEventListener("click", showDifficultySelection);
+}
+
+function startTreasureChallenge() {
+  stopTimer();
+  const numbers = shuffle([0,1,2,3,4,5,6,7,8,9]);
+  targetSet = numbers.slice(0, Math.floor(Math.random() * 3) + 3).sort((a,b) => a-b);
+  playerCards = shuffle([0,1,2,3,4,5,6,7,8,9]).slice(0,5);
+  treasureBag = [];
+  treasureMoves = 5;
+  renderTreasureChallenge();
+}
+
+function renderTreasureChallenge() {
+  gameContainer.innerHTML = `
+    <h1>💎 TREASURE BAG</h1>
+    <p class="subtitle">Player: ${escapeHTML(playerName)}</p>
+    <p class="description">Add only numbers that belong to the target set.</p>
+    <h2>{${targetSet.join(", ")}}</h2>
+    <p class="description">Choose from your cards. You have ${treasureMoves} moves left.</p>
+    <div class="number-cards">
+      ${playerCards.map(n => `<button class="number-card" data-number="${n}" ${treasureMoves === 0 ? "disabled" : ""}>${n}</button>`).join("")}
+    </div>
+    <h2>🎒 Your Treasure Bag</h2>
+    <p>${treasureBag.length ? `{${treasureBag.join(", ")}}` : "Your bag is empty."}</p>
+    <p class="feedback" id="treasureFeedback">Choose a card!</p>
+    <p class="topics">Score: ${score} · Moves left: ${treasureMoves}</p>
+    <button class="secondary" id="backTopics">← Topics</button>
+    ${treasureMoves === 0 ? `<button id="treasureNext">CONTINUE TO TOPICS →</button>` : ""}
+  `;
+
+  gameContainer.querySelectorAll("[data-number]").forEach(button => {
+    button.addEventListener("click", () => {
+      const number = Number(button.dataset.number);
+      treasureMoves--;
+      button.disabled = true;
+
+      const feedback = document.getElementById("treasureFeedback");
+      if (targetSet.includes(number)) {
+        treasureBag.push(number);
+        score += 10;
+        feedback.textContent = `Correct! ${number} belongs to the target set. +10 points!`;
+        feedback.className = "feedback good";
+      } else {
+        feedback.textContent = `${number} does not belong to the target set.`;
+        feedback.className = "feedback bad";
+      }
+      renderTreasureChallenge();
+      document.getElementById("treasureFeedback").textContent = feedback.textContent;
+      document.getElementById("treasureFeedback").className = feedback.className;
+    });
+  });
+
+  document.getElementById("backTopics").addEventListener("click", showTopicSelection);
+  const next = document.getElementById("treasureNext");
+  if (next) next.addEventListener("click", showTopicSelection);
+}
+
+function startTopic(topicIndex) {
+  stopTimer();
+  const setting = difficultySettings[difficulty];
+  activeQuestions = shuffle(topics[topicIndex].questions).slice(0, setting.count);
+  questionIndex = 0;
+  showQuestion(topicIndex);
+}
+
+function showQuestion(topicIndex) {
+  stopTimer();
+
+  if (questionIndex >= activeQuestions.length) {
+    showTopicComplete(topicIndex);
     return;
   }
 
-  timeLeft = settings[difficulty].time;
-  const item = questionList[currentQuestion];
-  const progress = (currentQuestion / questionList.length) * 100;
+  answered = false;
+  usedHint = false;
+  timeLeft = difficultySettings[difficulty].seconds;
+  const topic = topics[topicIndex];
+  const current = activeQuestions[questionIndex];
 
-  render(`
-    <div class="tq-card">
-      <h2 class="tq-title">🏴‍☠️ Treasure Quest</h2>
-      <div class="tq-meta">
-        <span>👤 ${escapeHTML(playerName)}</span>
-        <span>⭐ Score: ${score}</span>
-      </div>
-      <div class="tq-meta">
-        <span>Topic: ${escapeHTML(item.topic)}</span>
-        <span>Difficulty: ${difficulty}</span>
-      </div>
-      <div class="tq-bar"><div class="tq-bar-fill" id="progressFill" style="width:${progress}%"></div></div>
-      <div class="tq-meta">
-        <span>Question ${currentQuestion + 1} of ${questionList.length}</span>
-        <span>⏱️ Time: <span id="timerValue">${timeLeft}</span>s</span>
-      </div>
-      <h3 class="tq-question">${escapeHTML(item.q)}</h3>
-      <div id="answerOptions">
-        ${item.choices.map((choice, index) => `
-          <button class="tq-answer" data-answer="${index}">${String.fromCharCode(65 + index)}. ${escapeHTML(choice)}</button>
-        `).join("")}
-      </div>
-      <button class="tq-btn secondary" id="hintBtn">💡 Show Hint</button>
-      <button class="tq-btn" id="nextBtn" disabled>Next Question ➜</button>
-      <div id="feedback"></div>
+  gameContainer.innerHTML = `
+    <p class="subtitle">${topic.title}</p>
+    <h1>QUESTION ${questionIndex + 1}</h1>
+    <p class="topics">Player: ${escapeHTML(playerName)} · ${difficulty}</p>
+    <div class="stats">
+      <div class="stat"><strong id="timer">${timeLeft}</strong><span>Seconds Left</span></div>
+      <div class="stat"><strong>${score}</strong><span>Score</span></div>
+      <div class="stat"><strong>${questionIndex + 1}/${activeQuestions.length}</strong><span>Progress</span></div>
     </div>
-  `);
+    <div class="progress-track"><div class="progress-fill" style="width:${(questionIndex / activeQuestions.length) * 100}%"></div></div>
+    <div class="question-card">
+      <p class="question-text">${escapeHTML(current.question)}</p>
+      <div id="answers">
+        ${shuffle(current.choices).map(choice => `<button class="answer" data-answer="${escapeHTML(choice)}">${escapeHTML(choice)}</button>`).join("")}
+      </div>
+      <p id="feedback" class="feedback">Choose your answer.</p>
+      <div id="hintArea"></div>
+    </div>
+    <button class="secondary" id="hintButton">💡 SHOW HINT</button>
+    <button class="secondary" id="quitTopic">← BACK TO TOPICS</button>
+    <div id="continueArea"></div>
+  `;
 
-  document.querySelectorAll("[data-answer]").forEach(button => {
-    button.onclick = () => checkAnswer(Number(button.dataset.answer));
+  gameContainer.querySelectorAll("[data-answer]").forEach(button => {
+    button.addEventListener("click", () => checkAnswer(button, current, topicIndex));
   });
 
-  document.getElementById("hintBtn").onclick = () => {
-    document.getElementById("feedback").innerHTML =
-      `<div class="tq-feedback">💡 <b>Hint:</b> ${escapeHTML(item.hint)}</div>`;
-  };
+  document.getElementById("hintButton").addEventListener("click", () => {
+    if (usedHint || answered) return;
+    usedHint = true;
+    document.getElementById("hintArea").innerHTML =
+      `<p class="hint-box">💡 Hint: ${escapeHTML(current.hint || "Read the question carefully and eliminate incorrect choices.")}</p>`;
+    document.getElementById("hintButton").disabled = true;
+  });
 
-  document.getElementById("nextBtn").onclick = () => {
-    currentQuestion++;
-    showQuestion();
-  };
+  document.getElementById("quitTopic").addEventListener("click", () => {
+    stopTimer();
+    showTopicSelection();
+  });
 
-  timer = setInterval(() => {
+  timerId = setInterval(() => {
     timeLeft--;
-    const timerValue = document.getElementById("timerValue");
-    if (timerValue) timerValue.textContent = timeLeft;
-
+    const timer = document.getElementById("timer");
+    if (timer) timer.textContent = timeLeft;
     if (timeLeft <= 0) {
-      clearInterval(timer);
-      checkAnswer(-1);
+      stopTimer();
+      if (!answered) handleTimeout(current, topicIndex);
     }
   }, 1000);
 }
 
-function checkAnswer(choiceIndex) {
+function checkAnswer(button, current, topicIndex) {
   if (answered) return;
-
   answered = true;
-  clearInterval(timer);
+  stopTimer();
 
-  const item = questionList[currentQuestion];
-  const isCorrect = choiceIndex === item.answer;
+  const correct = button.dataset.answer === current.answer;
+  const feedback = document.getElementById("feedback");
 
-  if (isCorrect) {
-    score += settings[difficulty].points;
-    correctAnswers++;
-  }
-
-  document.querySelectorAll("[data-answer]").forEach(button => {
-    button.disabled = true;
-    const index = Number(button.dataset.answer);
-
-    if (index === item.answer) button.classList.add("correct");
-    if (index === choiceIndex && !isCorrect) button.classList.add("wrong");
+  gameContainer.querySelectorAll("[data-answer]").forEach(answerButton => {
+    answerButton.disabled = true;
+    if (answerButton.dataset.answer === current.answer) answerButton.classList.add("correct");
   });
 
-  let feedback = isCorrect
-    ? `✅ <b>Correct! +${settings[difficulty].points} points!</b>`
-    : choiceIndex === -1
-      ? "⏰ <b>Time's up!</b>"
-      : "❌ <b>Not quite right.</b>";
+  if (correct) {
+    const earned = difficultySettings[difficulty].points;
+    score += earned;
+    feedback.textContent = `Correct! +${earned} points!`;
+    feedback.className = "feedback good";
+  } else {
+    button.classList.add("wrong");
+    feedback.textContent = `Not quite. Correct answer: ${current.answer}`;
+    feedback.className = "feedback bad";
+  }
 
-  feedback += `<br><b>Correct answer:</b> ${escapeHTML(item.choices[item.answer])}`;
-  feedback += `<br><b>Explanation:</b> ${escapeHTML(item.explanation)}`;
-
-  document.getElementById("feedback").innerHTML = `<div class="tq-feedback">${feedback}</div>`;
-  document.querySelector(".tq-meta span:last-child").textContent = `⭐ Score: ${score}`;
-  document.getElementById("nextBtn").disabled = false;
-  document.getElementById("nextBtn").textContent =
-    currentQuestion === questionList.length - 1 ? "View Results 🏆" : "Next Question ➜";
+  showContinueButton(topicIndex);
 }
 
-function showResults() {
-  clearInterval(timer);
-  const total = questionList.length;
-  const percentage = total ? Math.round((correctAnswers / total) * 100) : 0;
+function handleTimeout(current, topicIndex) {
+  answered = true;
+  gameContainer.querySelectorAll("[data-answer]").forEach(button => {
+    button.disabled = true;
+    if (button.dataset.answer === current.answer) button.classList.add("correct");
+  });
+  const feedback = document.getElementById("feedback");
+  feedback.textContent = `Time's up! Correct answer: ${current.answer}`;
+  feedback.className = "feedback bad";
+  showContinueButton(topicIndex);
+}
 
-  let message = "Keep practicing, adventurer!";
-  if (percentage >= 80) message = "Amazing! You're a treasure master! 🏆";
-  else if (percentage >= 50) message = "Good job! You're getting stronger! 💪";
+function showContinueButton(topicIndex) {
+  document.getElementById("continueArea").innerHTML = `<button id="continueQuestion">CONTINUE →</button>`;
+  document.getElementById("continueQuestion").addEventListener("click", () => {
+    questionIndex++;
+    showQuestion(topicIndex);
+  });
+}
 
-  render(`
-    <div class="tq-card" style="text-align:center">
-      <h1 class="tq-title">🏆 Treasure Hunt Complete!</h1>
-      <h2>Well done, ${escapeHTML(playerName)}!</h2>
-      <p class="tq-subtitle">${message}</p>
-      <div class="tq-feedback">
-        <p><b>Difficulty:</b> ${difficulty}</p>
-        <p><b>Topic:</b> ${selectedTopic === "ALL" ? "All Topics" : escapeHTML(selectedTopic)}</p>
-        <p><b>Final Score:</b> ${score} points</p>
-        <p><b>Correct Answers:</b> ${correctAnswers} / ${total}</p>
-        <p><b>Accuracy:</b> ${percentage}%</p>
-      </div>
-      <button class="tq-btn tq-full" id="playAgainBtn">🔁 Play Again</button>
-      <button class="tq-btn secondary tq-full" id="changeSettingsBtn">🗺️ Choose Topic & Difficulty</button>
+function showTopicComplete(topicIndex) {
+  stopTimer();
+  gameContainer.innerHTML = `
+    <div class="treasure-icon">🏆</div>
+    <h1>TOPIC COMPLETE!</h1>
+    <p class="subtitle">${topics[topicIndex].title}</p>
+    <p class="description">Nice work, ${escapeHTML(playerName)}! You finished this topic.</p>
+    <div class="stats">
+      <div class="stat"><strong>${score}</strong><span>Total Score</span></div>
+      <div class="stat"><strong>${activeQuestions.length}</strong><span>Questions</span></div>
+      <div class="stat"><strong>${difficulty}</strong><span>Difficulty</span></div>
     </div>
-  `);
-
-  document.getElementById("playAgainBtn").onclick = startGame;
-  document.getElementById("changeSettingsBtn").onclick = showTopicSelection;
+    <button id="anotherTopic">CHOOSE ANOTHER TOPIC</button>
+    <button class="secondary" id="finishGame">VIEW FINAL RESULTS</button>
+  `;
+  document.getElementById("anotherTopic").addEventListener("click", showTopicSelection);
+  document.getElementById("finishGame").addEventListener("click", showFinalResults);
 }
 
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+function showFinalResults() {
+  stopTimer();
+  gameContainer.innerHTML = `
+    <div class="treasure-icon">🏆 💎 🏆</div>
+    <h1>TREASURE QUEST RESULTS</h1>
+    <p class="subtitle">Congratulations, ${escapeHTML(playerName)}!</p>
+    <p class="description">You earned a total of:</p>
+    <h2 style="font-size:44px">${score} points</h2>
+    <p class="description">Difficulty: ${difficulty}</p>
+    <p class="topics">Keep practicing to improve your score!</p>
+    <button id="playAgain">PLAY AGAIN</button>
+    <button class="secondary" id="chooseTopicAgain">CHOOSE TOPIC</button>
+  `;
+  document.getElementById("playAgain").addEventListener("click", () => {
+    score = 0;
+    difficulty = "Easy";
+    showWelcomeScreen();
+  });
+  document.getElementById("chooseTopicAgain").addEventListener("click", showTopicSelection);
 }
 
-if (game) {
-  showWelcome();
-} else {
-  console.error('Game container not found. Make sure your HTML has an element with class="game-container".');
-}
+showWelcomeScreen();
