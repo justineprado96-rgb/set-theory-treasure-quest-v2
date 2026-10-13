@@ -708,3 +708,95 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ===================================
+   PIXEL TREASURE QUEST ANIMATIONS
+   Safe addition - keeps existing game logic
+=================================== */
+
+@keyframes pixelFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes pixelGlow {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes pixelPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Main game entrance */
+.game-container {
+    animation: pixelPop 0.35s steps(5, end);
+}
+
+/* Floating treasure decorations */
+.treasure-icon,
+.treasure-chest {
+    display: inline-block;
+    animation: pixelFloat 2s steps(5, end) infinite;
+    transform-origin: center;
+}
+
+/* Retro glowing title */
+h1 {
+    text-shadow: 3px 3px 0 #352044;
+    animation: pixelGlow 3s steps(4, end) infinite;
+}
+
+/* Pixel-style button interaction */
+button {
+    transition:
+        transform 0.12s steps(3, end),
+        filter 0.12s linear;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: brightness(1.15);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(2px);
+}
+
+/* Cards appear with a small pop */
+.answer,
+.number-card,
+.stat,
+.question-card {
+    animation: pixelPop 0.25s steps(4, end);
+}
+
+/* Smooth retro progress movement */
+.progress-fill {
+    transition: width 0.3s steps(6, end);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
