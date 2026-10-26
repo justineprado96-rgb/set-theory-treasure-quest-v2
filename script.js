@@ -448,6 +448,7 @@ function showTopicComplete(topicIndex) {
     <button class="secondary" id="finishGame">VIEW FINAL RESULTS</button>
   `;
   document.getElementById("anotherTopic").addEventListener("click", showTopicSelection);
+
   document.getElementById("finishGame").addEventListener("click", showFinalResults);
 }
 
