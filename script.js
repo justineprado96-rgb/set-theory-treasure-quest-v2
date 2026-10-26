@@ -147,22 +147,62 @@ function showWelcomeScreen() {
     <p class="subtitle">Collect numbers. Solve set challenges. Find the treasure!</p>
     <div class="treasure-chest">🧰</div>
     <p class="description">Enter your name to begin your mathematical treasure hunt.</p>
-    <form id="nameForm">
-      <input id="playerNameInput" maxlength="30" autocomplete="name"
-        placeholder="Enter your player name" required>
-      <button type="submit">START GAME →</button>
-    </form>
+    
+<form id="nameForm">
+  <label for="playerNameInput">Player 1 Name</label>
+  <input id="playerNameInput" maxlength="30"
+    placeholder="Enter Player 1 name" required>
+
+  <label for="player2NameInput">Player 2 Name (Multiplayer only)</label>
+  <input id="player2NameInput" maxlength="30"
+    placeholder="Enter Player 2 name">
+
+  <label for="gameMode">Choose Game Mode</label>
+  <select id="gameMode">
+    <option value="single">Single Player</option>
+    <option value="multi">Local Multiplayer (2 Players)</option>
+  </select>
+
+  <button type="submit">START GAME →</button>
+</form>
+
     <p class="topics">Types of Sets · Set Operations · Binary Addition · Number Systems · Boolean Algebra</p>
   `;
 
-  document.getElementById("nameForm").addEventListener("submit", event => {
-    event.preventDefault();
-    const name = document.getElementById("playerNameInput").value.trim();
-    if (!name) return;
-    playerName = name;
-    score = 0;
-    showDifficultySelection();
-  });
+ 
+document.getElementById("nameForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const name = document.getElementById("playerNameInput").value.trim();
+  const player2Name = document.getElementById("player2NameInput").value.trim();
+  const selectedMode = document.getElementById("gameMode").value;
+
+  if (!name) return;
+
+  multiplayerMode = selectedMode === "multi";
+
+  if (multiplayerMode && !player2Name) {
+    alert("Please enter Player 2's name.");
+    return;
+  }
+
+  playerName = name;
+  score = 0;
+  questionIndex = 0;
+
+  if (multiplayerMode) {
+    multiplayerPlayers = [name, player2Name];
+    multiplayerScores = [0, 0];
+    currentPlayerIndex = 0;
+  } else {
+    multiplayerPlayers = [name];
+    multiplayerScores = [0, 0];
+    currentPlayerIndex = 0;
+  }
+
+  showDifficultySelection();
+});
+
 }
 
 function showDifficultySelection() {
