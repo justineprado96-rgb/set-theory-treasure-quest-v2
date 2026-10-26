@@ -21,6 +21,52 @@ let multiplayerMode = false;
 let multiplayerPlayers = [];
 let currentPlayerIndex = 0;
 let multiplayerScores = [0, 0];
+let questionTurnCount = 0;
+
+function getCurrentPlayerName() {
+  return multiplayerMode
+    ? multiplayerPlayers[currentPlayerIndex]
+    : playerName;
+}
+
+function getCurrentScore() {
+  return multiplayerMode
+    ? multiplayerScores[currentPlayerIndex]
+    : score;
+}
+
+function addPoints(points) {
+  if (multiplayerMode) {
+    multiplayerScores[currentPlayerIndex] += points;
+  } else {
+    score += points;
+  }
+}
+
+function switchPlayer() {
+  if (multiplayerMode) {
+    currentPlayerIndex = (currentPlayerIndex + 1) % 2;
+  }
+}
+
+function getScoreboardHTML() {
+  if (!multiplayerMode) {
+    return `
+      <div class="stat">
+        <strong>${score}</strong>
+        <span>Score</span>
+      </div>
+    `;
+  }
+
+  return multiplayerPlayers.map((name, index) => `
+    <div class="stat">
+      <strong>${multiplayerScores[index]}</strong>
+      <span>${escapeHTML(name)}</span>
+    </div>
+  `).join("");
+}
+
 
 
 const difficultySettings = {
@@ -301,7 +347,9 @@ function renderTreasureChallenge() {
     <h2>🎒 Your Treasure Bag</h2>
     <p>${treasureBag.length ? `{${treasureBag.join(", ")}}` : "Your bag is empty."}</p>
     <p class="feedback" id="treasureFeedback">Choose a card!</p>
-    <p class="topics">Score: ${score} · Moves left: ${treasureMoves}</p>
+    <p class="topics">
+  ${getScoreboardHTML()} · Moves left: ${treasureMoves}
+</p>
     <button class="secondary" id="backTopics">← Topics</button>
     ${treasureMoves === 0 ? `<button id="treasureNext">CONTINUE TO TOPICS →</button>` : ""}
   `;
@@ -315,7 +363,7 @@ function renderTreasureChallenge() {
       const feedback = document.getElementById("treasureFeedback");
       if (targetSet.includes(number)) {
         treasureBag.push(number);
-        score += 10;
+        addPoints(10);
         feedback.textContent = `Correct! ${number} belongs to the target set. +10 points!`;
         feedback.className = "feedback good";
         window.__treasureRewardMessage = "🪙 +10";
@@ -347,6 +395,7 @@ function startTopic(topicIndex) {
   showQuestion(topicIndex);
 }
 
+
 function showQuestion(topicIndex) {
   stopTimer();
 
@@ -354,6 +403,97 @@ function showQuestion(topicIndex) {
     showTopicComplete(topicIndex);
     return;
   }
+
+  answered = false;
+  usedHint = false;
+  timeLeft = difficultySettings[difficulty].seconds;
+
+  const topic = topics[topicIndex];
+  const current = activeQuestions[questionIndex];
+  const activePlayerName = getCurrentPlayerName();
+
+  gameContainer.innerHTML = `
+    <p class="subtitle">${topic.title}</p>
+    <h1>QUESTION ${questionIndex + 1}</h1>
+    <p class="topics">
+      ${multiplayerMode ? "Current Turn: " : "Player: "}
+      ${escapeHTML(activePlayerName)} · ${difficulty}
+    </p>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="timer">${timeLeft}</strong>
+        <span>Seconds Left</span>
+      </div>
+      ${getScoreboardHTML()}
+      <div class="stat">
+        <strong>${questionIndex + 1}/${activeQuestions.length}</strong>
+        <span>Progress</span>
+      </div>
+    </div>
+
+    <div class="progress-track">
+      <div class="progress-fill"
+        style="width:${(questionIndex / activeQuestions.length) * 100}%">
+      </div>
+    </div>
+
+    <div class="question-card">
+      <p class="question-text">${escapeHTML(current.question)}</p>
+
+      <div id="answers">
+        ${shuffle(current.choices).map(choice =>
+          `<button class="answer" data-answer="${escapeHTML(choice)}">
+            ${escapeHTML(choice)}
+          </button>`
+        ).join("")}
+      </div>
+
+      <p id="feedback" class="feedback">Choose your answer.</p>
+      <div id="hintArea"></div>
+    </div>
+
+    <button class="secondary" id="hintButton">💡 SHOW HINT</button>
+    <button class="secondary" id="quitTopic">← BACK TO TOPICS</button>
+    <div id="continueArea"></div>
+  `;
+
+  gameContainer.querySelectorAll("[data-answer]").forEach(button => {
+    button.addEventListener("click", () => {
+      checkAnswer(button, current, topicIndex);
+    });
+  });
+
+  document.getElementById("hintButton").addEventListener("click", () => {
+    if (usedHint || answered) return;
+
+    usedHint = true;
+    document.getElementById("hintArea").innerHTML =
+      `<p class="hint-box">💡 Hint: ${escapeHTML(
+        current.hint || "Read the question carefully."
+      )}</p>`;
+
+    document.getElementById("hintButton").disabled = true;
+  });
+
+  document.getElementById("quitTopic").addEventListener("click", () => {
+    stopTimer();
+    showTopicSelection();
+  });
+
+  timerId = setInterval(() => {
+    timeLeft--;
+
+    const timer = document.getElementById("timer");
+    if (timer) timer.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      stopTimer();
+      if (!answered) handleTimeout(current, topicIndex);
+    }
+  }, 1000);
+}
+
 
   answered = false;
   usedHint = false;
@@ -424,8 +564,10 @@ function spawnReward(text = "💎", extraClass = "") {
   }, 1600);
 }
 
+
 function checkAnswer(button, current, topicIndex) {
   if (answered) return;
+
   answered = true;
   stopTimer();
 
@@ -434,9 +576,34 @@ function checkAnswer(button, current, topicIndex) {
 
   gameContainer.querySelectorAll("[data-answer]").forEach(answerButton => {
     answerButton.disabled = true;
+
     if (answerButton.dataset.answer === current.answer) {
       answerButton.classList.add("correct");
     }
+  });
+
+  if (correct) {
+    const earned = difficultySettings[difficulty].points;
+    addPoints(earned);
+
+    feedback.innerHTML = `
+      <span class="reward-icon" aria-hidden="true">💎</span>
+      <span>Correct! +${earned} points for ${escapeHTML(getCurrentPlayerName())}!</span>
+      <span class="reward-sparkle" aria-hidden="true">✨</span>
+    `;
+
+    feedback.className = "feedback good reward-feedback";
+    spawnReward(`💎 +${earned}`);
+  } else {
+    button.classList.add("wrong");
+    feedback.textContent =
+      `Not quite. Correct answer: ${current.answer}`;
+    feedback.className = "feedback bad";
+  }
+
+  showContinueButton(topicIndex);
+}
+
   });
 
   if (correct) {
@@ -470,13 +637,37 @@ function handleTimeout(current, topicIndex) {
   showContinueButton(topicIndex);
 }
 
+
 function showContinueButton(topicIndex) {
-  document.getElementById("continueArea").innerHTML = `<button id="continueQuestion">CONTINUE →</button>`;
+  const nextPlayerName = multiplayerMode
+    ? multiplayerPlayers[(currentPlayerIndex + 1) % 2]
+    : "";
+
+  const buttonLabel = multiplayerMode
+    ? `NEXT TURN: ${escapeHTML(nextPlayerName)} →`
+    : "CONTINUE →";
+
+  document.getElementById("continueArea").innerHTML =
+    `<button id="continueQuestion">${buttonLabel}</button>`;
+
   document.getElementById("continueQuestion").addEventListener("click", () => {
-    questionIndex++;
-    showQuestion(topicIndex);
+    if (multiplayerMode && questionTurnCount === 0) {
+      questionTurnCount = 1;
+      switchPlayer();
+      showQuestion(topicIndex);
+    } else {
+      questionTurnCount = 0;
+      questionIndex++;
+
+      if (multiplayerMode) {
+        currentPlayerIndex = 0;
+      }
+
+      showQuestion(topicIndex);
+    }
   });
 }
+
 
 function showTopicComplete(topicIndex) {
   stopTimer();
