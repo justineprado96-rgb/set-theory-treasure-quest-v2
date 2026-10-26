@@ -17,6 +17,12 @@ let targetSet = [];
 let treasureBag = [];
 let playerCards = [];
 
+let multiplayerMode = false;
+let multiplayerPlayers = [];
+let currentPlayerIndex = 0;
+let multiplayerScores = [0, 0];
+
+
 const difficultySettings = {
   Easy: { seconds: 30, points: 10, count: 5 },
   Medium: { seconds: 20, points: 20, count: 7 },
