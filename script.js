@@ -4,6 +4,11 @@
 const gameContainer = document.querySelector(".game-container");
 
 let playerName = "";
+let playerNames = ["Player 1", "Player 2"];
+let multiplayer = true;
+let currentPlayer = 1;
+let playerScores = [0, 0];
+
 let difficulty = "Easy";
 let score = 0;
 let questionIndex = 0;
@@ -133,31 +138,52 @@ function stopTimer() {
   timerId = null;
 }
 
+
 function showWelcomeScreen() {
   stopTimer();
+
   gameContainer.innerHTML = `
     <div class="treasure-icon">💎 🗝️ 💰</div>
     <h1>THE SET THEORY<br>TREASURE QUEST</h1>
     <p class="subtitle">Collect numbers. Solve set challenges. Find the treasure!</p>
     <div class="treasure-chest">🧰</div>
-    <p class="description">Enter your name to begin your mathematical treasure hunt.</p>
+    <p class="description">
+      Two players, one computer! Enter both names to begin your mathematical treasure hunt.
+    </p>
+
     <form id="nameForm">
-      <input id="playerNameInput" maxlength="30" autocomplete="name"
-        placeholder="Enter your player name" required>
+      <input id="player1NameInput" maxlength="30" autocomplete="off"
+        placeholder="Enter Player 1 name" required>
+
+      <input id="player2NameInput" maxlength="30" autocomplete="off"
+        placeholder="Enter Player 2 name" required>
+
       <button type="submit">START GAME →</button>
     </form>
-    <p class="topics">Types of Sets · Set Operations · Binary Addition · Number Systems · Boolean Algebra</p>
+
+    <p class="topics">
+      Types of Sets · Set Operations · Binary Addition · Number Systems · Boolean Algebra
+    </p>
   `;
 
   document.getElementById("nameForm").addEventListener("submit", event => {
     event.preventDefault();
-    const name = document.getElementById("playerNameInput").value.trim();
-    if (!name) return;
-    playerName = name;
+
+    const name1 = document.getElementById("player1NameInput").value.trim();
+    const name2 = document.getElementById("player2NameInput").value.trim();
+
+    if (!name1 || !name2) return;
+
+    playerNames = [name1, name2];
+    playerName = name1;
+    currentPlayer = 1;
+    playerScores = [0, 0];
     score = 0;
+
     showDifficultySelection();
   });
 }
+
 
 function showDifficultySelection() {
   stopTimer();
@@ -255,7 +281,7 @@ function renderTreasureChallenge() {
     <h2>🎒 Your Treasure Bag</h2>
     <p>${treasureBag.length ? `{${treasureBag.join(", ")}}` : "Your bag is empty."}</p>
     <p class="feedback" id="treasureFeedback">Choose a card!</p>
-    <p class="topics">Score: ${score} · Moves left: ${treasureMoves}</p>
+    <p class="topics">Score: ${playerScores[currentPlayer - 1]} · Moves left: ${treasureMoves}</p>
     <button class="secondary" id="backTopics">← Topics</button>
     ${treasureMoves === 0 ? `<button id="treasureNext">CONTINUE TO TOPICS →</button>` : ""}
   `;
@@ -269,7 +295,8 @@ function renderTreasureChallenge() {
       const feedback = document.getElementById("treasureFeedback");
       if (targetSet.includes(number)) {
         treasureBag.push(number);
-        score += 10;
+        playerScores[currentPlayer - 1] += 10;
+        score = playerScores[currentPlayer - 1];
         feedback.textContent = `Correct! ${number} belongs to the target set. +10 points!`;
         feedback.className = "feedback good";
         window.__treasureRewardMessage = "🪙 +10";
@@ -321,7 +348,10 @@ function showQuestion(topicIndex) {
     <p class="topics">Player: ${escapeHTML(playerName)} · ${difficulty}</p>
     <div class="stats">
       <div class="stat"><strong id="timer">${timeLeft}</strong><span>Seconds Left</span></div>
-      <div class="stat"><strong>${score}</strong><span>Score</span></div>
+      <div class="stat">
+  <strong>${playerScores[currentPlayer - 1]}</strong>
+  <span>${escapeHTML(playerName)}'s Score</span>
+</div>
       <div class="stat"><strong>${questionIndex + 1}/${activeQuestions.length}</strong><span>Progress</span></div>
     </div>
     <div class="progress-track"><div class="progress-fill" style="width:${(questionIndex / activeQuestions.length) * 100}%"></div></div>
@@ -395,7 +425,8 @@ function checkAnswer(button, current, topicIndex) {
 
   if (correct) {
     const earned = difficultySettings[difficulty].points;
-    score += earned;
+    playerScores[currentPlayer - 1] += earned;
+score = playerScores[currentPlayer - 1];
     feedback.innerHTML = `
       <span class="reward-icon" aria-hidden="true">💎</span>
       <span>Correct! +${earned} points!</span>
@@ -425,10 +456,16 @@ function handleTimeout(current, topicIndex) {
 }
 
 function showContinueButton(topicIndex) {
-  document.getElementById("continueArea").innerHTML = `<button id="continueQuestion">CONTINUE →</button>`;
+  document.getElementById("continueArea").innerHTML =
+    `<button id="continueQuestion">CONTINUE →</button>`;
+
   document.getElementById("continueQuestion").addEventListener("click", () => {
-    questionIndex++;
-    showQuestion(topicIndex);
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+playerName = playerNames[currentPlayer - 1];
+score = playerScores[currentPlayer - 1];
+
+questionIndex++;
+showQuestion(topicIndex);
   });
 }
 
@@ -452,25 +489,55 @@ function showTopicComplete(topicIndex) {
   document.getElementById("finishGame").addEventListener("click", showFinalResults);
 }
 
+
 function showFinalResults() {
   stopTimer();
+
+  const player1Score = playerScores[0];
+  const player2Score = playerScores[1];
+
+  let winnerMessage = "";
+
+  if (player1Score > player2Score) {
+    winnerMessage = `🏆 ${escapeHTML(playerNames[0])} WINS!`;
+  } else if (player2Score > player1Score) {
+    winnerMessage = `🏆 ${escapeHTML(playerNames[1])} WINS!`;
+  } else {
+    winnerMessage = "🤝 IT'S A TIE!";
+  }
+
   gameContainer.innerHTML = `
     <div class="treasure-icon">🏆 💎 🏆</div>
     <h1>TREASURE QUEST RESULTS</h1>
-    <p class="subtitle">Congratulations, ${escapeHTML(playerName)}!</p>
-    <p class="description">You earned a total of:</p>
-    <h2 style="font-size:44px">${score} points</h2>
-    <p class="description">Difficulty: ${difficulty}</p>
+
+    <h2>${winnerMessage}</h2>
+
+    <div class="description">
+      <p><strong>${escapeHTML(playerNames[0])}:</strong>
+      ${player1Score} points</p>
+
+      <p><strong>${escapeHTML(playerNames[1])}:</strong>
+      ${player2Score} points</p>
+    </div>
+
+    <p class="description">Difficulty: ${escapeHTML(difficulty)}</p>
     <p class="topics">Keep practicing to improve your score!</p>
+
     <button id="playAgain">PLAY AGAIN</button>
     <button class="secondary" id="chooseTopicAgain">CHOOSE TOPIC</button>
   `;
+
   document.getElementById("playAgain").addEventListener("click", () => {
     score = 0;
+    playerScores = [0, 0];
+    currentPlayer = 1;
+    playerName = "";
     difficulty = "Easy";
     showWelcomeScreen();
   });
+
   document.getElementById("chooseTopicAgain").addEventListener("click", showTopicSelection);
 }
+
 
 showWelcomeScreen();
