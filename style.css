@@ -1,237 +1,1159 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
 :root {
-  --obsidian: #120000;
-  --blood: #8B0000;
-  --inferno: #FF5E00;
-  --ember: #FFB27A;
-  --text: #FFEFE6;
-  --lead: #F2D6C8;
-  --muted: #D3A89A;
-  --line: rgba(255, 140, 80, .28);
-  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
-  --body: "Instrument Sans", "Segoe UI", "Cambria Math", "Segoe UI Symbol", system-ui, sans-serif;
+  --bg: #10172a;
+  --panel: #19243b;
+  --panel-light: #23324e;
+  --gold: #ffd36a;
+  --gold-dark: #d9a83e;
+  --text: #f5f7ff;
+  --muted: #aebbd2;
+  --green: #65dfa0;
+  --red: #ff8585;
+  --border: rgba(255,255,255,.11);
 }
 
 * { box-sizing: border-box; }
-html { color-scheme: dark; }
 
 body {
   margin: 0;
-  min-height: 100dvh;
-  padding: clamp(10px, 3vw, 36px);
+  min-height: 100vh;
+  padding: 28px 16px;
+  color: var(--text);
+  background:
+    radial-gradient(ellipse at top, #26365b 0%, transparent 55%),
+    var(--bg);
+  font-family: Inter, Arial, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  font: 400 16px/1.6 var(--body);
-  color: var(--text);
-  background-color: var(--blood);
-  background-image: linear-gradient(165deg, var(--obsidian) 0%, var(--blood) 58%, var(--inferno) 135%);
-  background-attachment: fixed;
 }
 
 .game-container {
-  position: relative;
   width: 100%;
-  max-width: 760px;
+  max-width: 850px;
+  min-height: 500px;
   margin: auto;
-  padding: clamp(22px, 4.5vw, 44px);
-  overflow: hidden;
-  border: 1px solid rgba(255, 94, 0, .35);
-  border-radius: 18px;
-  background:
-    radial-gradient(120% 60% at 100% 100%, rgba(255, 94, 0, .16), transparent 60%),
-    linear-gradient(180deg, #140000, #1d0303);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
-}
-.game-container::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 4px;
-  background: linear-gradient(90deg, var(--obsidian), var(--blood), var(--inferno));
+  padding: clamp(22px, 5vw, 48px);
+  background: rgba(25,36,59,.96);
+  border: 1px solid var(--border);
+  border-radius: 25px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.3);
+  text-align: center;
+  animation: appear .3s ease;
 }
 
+@keyframes appear {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+h1, h2, h3 { font-family: Outfit, Inter, sans-serif; }
 h1 {
-  margin: 0 0 12px;
-  font: 800 clamp(30px, 6vw, 48px)/1.05 var(--display);
-  letter-spacing: -.02em;
+  font-size: clamp(27px, 5vw, 43px);
+  line-height: 1.15;
+  margin: 16px 0;
 }
-h1:focus { outline: none; }
-h2 { margin: 26px 0 8px; font: 700 18px var(--display); }
-p { margin: 0 0 14px; }
-.lead { max-width: 56ch; margin-bottom: 22px; color: var(--lead); }
-.muted { color: var(--muted); font-size: 14px; }
-.loading { padding: 80px 0; color: var(--muted); }
+h2 { color: var(--gold); }
+p { line-height: 1.65; }
 
-/* Venn motif */
-.venn { display: block; width: 100%; height: auto; }
-.venn .va, .venn .vb { fill: rgba(139, 0, 0, .55); stroke: var(--inferno); stroke-width: 2; }
-.venn .dim { fill-opacity: .25; stroke-opacity: .4; }
-.venn .lens { fill: var(--inferno); filter: drop-shadow(0 0 10px rgba(255, 94, 0, .8)); }
-.hero-venn { width: min(300px, 72%); margin-bottom: 20px; }
-.result-venn { width: min(340px, 90%); margin-bottom: 14px; }
-.converge .ga { animation: slideA 1.2s cubic-bezier(.2, .8, .2, 1) both; }
-.converge .gb { animation: slideB 1.2s cubic-bezier(.2, .8, .2, 1) both; }
-.converge .lens { animation: kindle .7s 1s both; }
-@keyframes slideA { from { transform: translateX(-38px); } }
-@keyframes slideB { from { transform: translateX(38px); } }
-@keyframes kindle { from { opacity: 0; } }
-
-/* Scoreboard */
-.hud { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
-.hud .venn { flex: none; width: 116px; }
-.seat { display: flex; flex-direction: column; flex: 1; min-width: 0; opacity: .55; }
-.seat:last-child { align-items: flex-end; text-align: right; }
-.seat.on { opacity: 1; }
-.seat span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
-.seat b { font: 800 30px/1 var(--display); font-variant-numeric: tabular-nums; }
-.seat em { visibility: hidden; font-size: 12px; font-style: normal; color: var(--ember); }
-.seat.on em { visibility: visible; }
-
-/* Controls */
-button {
-  padding: 14px 22px;
-  border: 0;
-  border-radius: 10px;
-  font: 600 15px/1 var(--body);
-  color: var(--obsidian);
-  background: linear-gradient(135deg, var(--inferno), #FF8A3D);
-  cursor: pointer;
-  transition: transform .12s, box-shadow .12s;
+.subtitle {
+  color: var(--gold);
+  font-weight: 600;
 }
-button:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255, 94, 0, .35); }
-button:active:not(:disabled) { transform: translateY(1px); }
-button:focus-visible, input:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-button:disabled { opacity: .5; cursor: not-allowed; }
-button.ghost { color: var(--text); background: transparent; box-shadow: inset 0 0 0 1px var(--line); }
-button.ghost:hover:not(:disabled) { box-shadow: inset 0 0 0 1px var(--inferno); }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 24px; }
+.description { color: #e0e7f5; }
+.muted, .topics { color: var(--muted); font-size: 13px; }
 
-label { display: block; margin: 16px 0 6px; font-weight: 600; }
+.treasure-icon { font-size: 34px; letter-spacing: 5px; }
+.treasure-chest { font-size: 76px; margin: 16px 0; }
+
 input {
   display: block;
   width: 100%;
   max-width: 420px;
-  padding: 13px 14px;
-  font: 400 16px var(--body);
+  margin: 18px auto;
+  padding: 15px 17px;
   color: var(--text);
-  background: rgba(0, 0, 0, .35);
-  border: 1px solid var(--line);
+  background: #10192c;
+  border: 1px solid #465572;
+  border-radius: 12px;
+  outline: none;
+  font-size: 16px;
+}
+input:focus { border-color: var(--gold); }
+
+button {
+  border: 1px solid var(--gold-dark);
+  border-radius: 12px;
+  padding: 13px 20px;
+  margin: 6px;
+  color: #172033;
+  background: var(--gold);
+  font: 700 15px Inter, sans-serif;
+  cursor: pointer;
+  transition: transform .15s, filter .15s, background .15s;
+}
+button:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-2px);
+}
+button:focus-visible { outline: 3px solid white; outline-offset: 3px; }
+button:disabled { opacity: .6; cursor: not-allowed; }
+
+button.secondary {
+  color: var(--text);
+  background: var(--panel-light);
+  border-color: #536582;
+}
+button.selected {
+  color: #172033;
+  background: var(--gold);
+  border-color: white;
+  box-shadow: 0 0 0 2px rgba(255,211,106,.2);
+}
+button.answer {
+  display: block;
+  width: 100%;
+  max-width: 560px;
+  margin: 10px auto;
+  text-align: left;
+  color: var(--text);
+  background: #202e48;
+  border-color: #435574;
+  overflow-wrap: anywhere;
+}
+button.answer:hover:not(:disabled) {
+  background: #30415f;
+  border-color: var(--gold);
+}
+button.answer.correct {
+  color: #071d13;
+  background: var(--green);
+  border-color: var(--green);
+}
+button.answer.wrong {
+  color: #2a0909;
+  background: var(--red);
+  border-color: var(--red);
+}
+
+.selection-group {
+  margin: 25px 0;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 17px;
+  background: rgba(8,15,29,.24);
+}
+.selection-group h2 { font-size: 19px; }
+.difficulty-options, .topic-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.difficulty-options button { min-width: 105px; }
+.topic-grid button { flex: 1 1 220px; min-height: 65px; }
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0,1fr));
+  gap: 10px;
+  margin: 20px 0;
+}
+.stat {
+  padding: 13px 6px;
+  border-radius: 12px;
+  background: #10192c;
+  border: 1px solid var(--border);
+}
+.stat strong { display: block; color: var(--gold); font-size: 22px; }
+.stat span { color: var(--muted); font-size: 12px; }
+
+.progress-track {
+  width: 100%;
+  height: 9px;
+  margin: 18px 0;
+  overflow: hidden;
+  border-radius: 20px;
+  background: #0c1425;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #d9a83e, #ffe5a1);
+  transition: width .25s;
+}
+
+.question-card {
+  margin: 20px 0;
+  padding: 22px 15px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(9,17,32,.35);
+}
+.question-text { font-size: clamp(18px,3vw,23px); font-weight: 600; }
+.feedback { min-height: 30px; font-weight: 600; }
+.feedback.good { color: var(--green); }
+.feedback.bad { color: var(--red); }
+.hint-box {
+  padding: 12px;
+  color: var(--gold);
+  background: rgba(255,211,106,.08);
   border-radius: 10px;
 }
-input:focus { border-color: var(--inferno); }
-
-/* Difficulty */
-.levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0; }
-.level {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-  padding: 16px; text-align: left; color: var(--text);
-  background: rgba(0, 0, 0, .28); box-shadow: inset 0 0 0 1px var(--line);
+.number-cards {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
 }
-.level b { font: 700 20px var(--display); }
-.level small { font-size: 13px; color: var(--muted); }
-.level[aria-pressed="true"] { color: var(--obsidian); background: linear-gradient(135deg, var(--inferno), #FF8A3D); box-shadow: none; }
-.level[aria-pressed="true"] small { color: var(--obsidian); }
-
-/* Topics */
-.topic-list { margin: 22px 0 0; border-top: 1px solid var(--line); }
-.row {
-  position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
-  width: 100%; padding: 16px 14px; text-align: left; color: var(--text);
-  background: transparent; border-radius: 0; border-bottom: 1px solid var(--line);
+.number-card {
+  min-width: 58px;
+  font-size: 23px;
 }
-.row b { font: 700 18px var(--display); }
-.row span { font-size: 14px; font-weight: 400; color: var(--muted); }
-.row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--blood), var(--inferno)); opacity: 0; }
-.row.special::before, .row:hover::before { opacity: 1; }
-.row:hover:not(:disabled) { transform: none; box-shadow: none; background: rgba(255, 94, 0, .09); }
+footer {
+  max-width: 850px;
+  padding: 22px 8px 0;
+  color: #8391aa;
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 1px;
+}
+.loading { color: var(--gold); padding: 80px 0; }
 
-/* Questions */
-.meta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 12px; color: var(--muted); }
-.timer { font: 800 28px var(--display); font-variant-numeric: tabular-nums; color: var(--text); }
-.clock { height: 4px; margin: 8px 0 14px; overflow: hidden; border-radius: 4px; background: rgba(255, 255, 255, .1); }
-.clock i { display: block; width: 100%; height: 100%; background: linear-gradient(90deg, var(--blood), var(--inferno)); transition: width 1s linear; }
-.segs { display: flex; gap: 4px; margin-bottom: 22px; }
-.segs span { flex: 1; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, .12); }
-.segs .done { background: linear-gradient(90deg, var(--blood), var(--inferno)); }
-.segs .now { background: var(--ember); }
-.q { margin: 0 0 20px; font: 700 clamp(21px, 3.4vw, 28px)/1.3 var(--display); }
+@media (max-width: 520px) {
+  body { padding: 12px 8px; }
+  .game-container { padding: 22px 14px; border-radius: 17px; }
+  .stats { gap: 5px; }
+  .stat strong { font-size: 18px; }
+  button { padding: 12px 14px; }
+}
 
+/* =====================================
+   PIXEL TREASURE QUEST - ANIMATION PACK
+   ===================================== */
+
+/* Retro pixel-art colors and edges */
+:root {
+    --pixel-gold: #ffd166;
+    --pixel-blue: #32c5ff;
+    --pixel-dark: #07132f;
+}
+
+/* Animated starry background */
+body {
+    background-color: var(--pixel-dark);
+    background-image:
+        radial-gradient(#ffd166 1.5px, transparent 2px),
+        radial-gradient(#32c5ff 1.5px, transparent 2px),
+        linear-gradient(135deg, #07132f, #102858, #080e25);
+    background-size: 55px 55px, 83px 83px, 100% 100%;
+    animation: pixelSky 18s linear infinite;
+}
+
+@keyframes pixelSky {
+    from {
+        background-position: 0 0, 25px 40px, center;
+    }
+    to {
+        background-position: 55px 55px, 108px 123px, center;
+    }
+}
+
+/* Pixel-style game panel */
+.game-container {
+    border: 3px solid #4269ad !important;
+    border-radius: 5px !important;
+    box-shadow:
+        0 0 0 4px #101e45,
+        0 0 25px rgba(50, 197, 255, 0.2),
+        8px 8px 0 #050b1b !important;
+    animation: pixelEnter 0.55s steps(5, end) both;
+}
+
+@keyframes pixelEnter {
+    from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Pixel text glow */
+h1, h2, h3 {
+    text-shadow:
+        2px 2px 0 #75471b,
+        0 0 12px rgba(255, 209, 102, 0.28);
+}
+
+/* Floating treasure icons */
+.treasure-icon,
+.treasure-chest {
+    display: inline-block;
+    image-rendering: pixelated;
+    animation: treasureBounce 1.8s steps(4, end) infinite;
+}
+
+@keyframes treasureBounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Retro game buttons */
+button {
+    border: 2px solid #fff0bd !important;
+    border-radius: 3px !important;
+    box-shadow:
+        0 5px 0 #9b681b,
+        0 0 0 2px #30254b !important;
+    transition:
+        transform 0.15s steps(3, end),
+        filter 0.15s ease,
+        box-shadow 0.15s ease !important;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-3px) scale(1.025);
+    filter: brightness(1.15);
+    box-shadow:
+        0 7px 0 #9b681b,
+        0 0 14px rgba(255, 209, 102, 0.55) !important;
+}
+
+button:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #9b681b !important;
+}
+
+/* Pixel-style answer cards */
+#answers button,
+#operationAnswers button {
+    border: 2px solid #4269ad !important;
+    border-radius: 3px !important;
+    box-shadow: 0 4px 0 #050b1b !important;
+}
+
+#answers button:hover:not(:disabled),
+#operationAnswers button:hover:not(:disabled) {
+    border-color: var(--pixel-gold) !important;
+    box-shadow:
+        0 5px 0 #050b1b,
+        0 0 12px rgba(50, 197, 255, 0.25) !important;
+}
+
+/* Shimmering progress bar */
+.progress-fill {
+    background: repeating-linear-gradient(
+        90deg,
+        #ffd166 0px,
+        #ffd166 12px,
+        #ffeb9c 12px,
+        #ffeb9c 18px
+    ) !important;
+    background-size: 36px 100% !important;
+    animation: pixelProgress 0.8s linear infinite;
+}
+
+@keyframes pixelProgress {
+    from { background-position: 0 0; }
+    to { background-position: 36px 0; }
+}
+
+/* Selected focus glow */
+button:focus-visible,
+input[type="text"]:focus-visible {
+    outline: 3px solid #32c5ff;
+    outline-offset: 4px;
+}
+
+/* Keep animations comfortable for everyone */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ==========================================
+   PIXEL TREASURE QUEST - ANIMATION UPGRADE
+   Add this at the END of style.css
+========================================== */
+
+/* Retro pixel font */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  --pixel-gold: #ffd166;
+  --pixel-blue: #58c7ff;
+  --pixel-purple: #9b7bff;
+  --pixel-dark: #101a35;
+  --pixel-border: #426cc1;
+}
+
+/* Animated arcade background */
+body {
+  background-color: #0b1735;
+  background-image:
+    radial-gradient(circle, #ffd166 1.5px, transparent 2px),
+    radial-gradient(circle, #55d9ff 1.5px, transparent 2px),
+    linear-gradient(135deg, #102650, #091329 75%);
+  background-size: 59px 59px, 83px 83px, 100% 100%;
+  background-position: 0 0, 25px 35px, center;
+  animation: pixelStarMove 18s linear infinite;
+}
+
+@keyframes pixelStarMove {
+  from {
+    background-position: 0 0, 25px 35px, center;
+  }
+  to {
+    background-position: 118px 118px, -58px 118px, center;
+  }
+}
+
+/* Main game panel */
+.game-container {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 4px solid var(--pixel-border);
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 4px #081329,
+    0 0 22px rgba(75, 160, 255, 0.22),
+    8px 8px 0 rgba(0, 0, 0, 0.3);
+  animation: pixelPanelEnter 0.45s steps(5, end) both;
+}
+
+/* Keep game content above decorative pixels */
+.game-container > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes pixelPanelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pixel-style headings */
+.game-container h1 {
+  font-family: "Press Start 2P", monospace;
+  line-height: 1.7;
+  text-shadow:
+    3px 3px 0 #8a5728,
+    5px 5px 0 rgba(0, 0, 0, 0.35);
+  animation: pixelTitlePop 0.5s steps(4, end) both;
+}
+
+@keyframes pixelTitlePop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Floating treasure icons */
+.treasure-icon {
+  display: inline-block;
+  image-rendering: pixelated;
+  animation: treasureFloat 2s ease-in-out infinite;
+  filter: drop-shadow(3px 4px 0 rgba(0, 0, 0, 0.25));
+}
+
+@keyframes treasureFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-9px) rotate(3deg);
+  }
+}
+
+/* Treasure chest bounce */
+.treasure-chest {
+  display: inline-block;
+  animation: chestBounce 1.8s steps(4, end) infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes chestBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+/* Arcade buttons */
+.game-container button {
+  transition:
+    transform 0.12s steps(2, end),
+    box-shadow 0.12s steps(2, end),
+    filter 0.12s ease;
+  image-rendering: pixelated;
+  box-shadow: 0 4px 0 #81551d;
+}
+
+.game-container button:hover:not(:disabled) {
+  transform: translateY(-3px);
+  filter: brightness(1.12);
+  box-shadow:
+    0 7px 0 #81551d,
+    0 0 12px rgba(255, 209, 102, 0.25);
+}
+
+.game-container button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #81551d;
+}
+
+.game-container button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+/* Difficulty and topic cards */
+.difficulty-options button,
+.topic-grid button,
+.number-card {
+  border-radius: 3px;
+  border: 2px solid var(--pixel-gold);
+}
+
+.topic-grid button {
+  animation: pixelCardAppear 0.35s steps(4, end) both;
+}
+
+.topic-grid button:nth-child(2) { animation-delay: 0.04s; }
+.topic-grid button:nth-child(3) { animation-delay: 0.08s; }
+.topic-grid button:nth-child(4) { animation-delay: 0.12s; }
+.topic-grid button:nth-child(5) { animation-delay: 0.16s; }
+.topic-grid button:nth-child(6) { animation-delay: 0.20s; }
+
+@keyframes pixelCardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Answer choices */
 .answer {
-  display: flex; align-items: baseline; gap: 14px; width: 100%; margin: 0 0 10px; padding: 15px 16px;
-  text-align: left; color: var(--text); background: rgba(0, 0, 0, .28);
-  box-shadow: inset 0 0 0 1px var(--line); overflow-wrap: anywhere;
-}
-.answer kbd { min-width: 1ch; font: 600 13px var(--display); color: var(--ember); }
-.answer:hover:not(:disabled) { transform: none; box-shadow: inset 0 0 0 1px var(--inferno); }
-.answer:disabled { opacity: .45; }
-.answer.correct, .answer.wrong { opacity: 1; }
-.answer.correct { color: var(--obsidian); background: linear-gradient(135deg, var(--inferno), #FF8A3D); box-shadow: none; }
-.answer.correct kbd { color: var(--obsidian); }
-.answer.correct::after, .answer.wrong::after { margin-left: auto; font-size: 13px; }
-.answer.correct::after { content: "Correct"; }
-.answer.wrong { background: var(--blood); box-shadow: inset 0 0 0 1px #ff9a7a; }
-.answer.wrong::after { content: "Your pick"; }
-.answer.wrong .t { text-decoration: line-through; }
-
-.feedback { min-height: 1.6em; margin: 14px 0; padding-left: 12px; border-left: 3px solid var(--line); font-weight: 500; }
-.feedback.good { border-color: var(--inferno); }
-.feedback.bad { border-color: #ff7a5c; }
-.hint { padding: 12px 14px; color: var(--ember); background: rgba(255, 94, 0, .1); border-radius: 10px; }
-
-/* Treasure bag */
-.setnote { margin: 0 0 6px; font: 800 clamp(28px, 6vw, 44px)/1.1 var(--display); }
-.tiles { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
-.tile { width: 64px; height: 64px; padding: 0; font: 800 26px var(--display); }
-.tile.in { color: var(--obsidian); background: linear-gradient(135deg, var(--inferno), #FF8A3D); opacity: 1; }
-.tile.out { color: var(--text); background: var(--blood); text-decoration: line-through; opacity: 1; }
-.tile:disabled:not(.in):not(.out) { opacity: .4; }
-.bag {
-  display: inline-flex; align-items: center; justify-content: center; min-width: 160px; min-height: 76px;
-  padding: 12px 26px; border-radius: 999px; font: 700 22px var(--display);
-  box-shadow: inset 0 0 0 2px var(--inferno);
+  animation: answerAppear 0.25s steps(3, end) both;
 }
 
-/* Results */
-.final { margin: 18px 0; padding: 0; list-style: none; }
-.final li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font: 700 20px var(--display); }
+.answer:nth-child(2) { animation-delay: 0.06s; }
+.answer:nth-child(3) { animation-delay: 0.12s; }
+.answer:nth-child(4) { animation-delay: 0.18s; }
 
+@keyframes answerAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Correct and incorrect answer effects */
+.game-container button.correct {
+  animation: correctPixelFlash 0.45s steps(3, end);
+}
+
+.game-container button.wrong {
+  animation: wrongPixelShake 0.3s steps(4, end);
+}
+
+@keyframes correctPixelFlash {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.7);
+    box-shadow: 0 0 0 3px #4ee58b;
+  }
+}
+
+@keyframes wrongPixelShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-2px); }
+}
+
+/* Score and timer emphasis */
+.stat strong {
+  display: inline-block;
+  color: var(--pixel-gold);
+  text-shadow: 2px 2px 0 #81551d;
+  animation: statPixelPulse 2s steps(3, end) infinite;
+}
+
+@keyframes statPixelPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+/* Question progress bar */
+.progress-track {
+  overflow: hidden;
+  border: 2px solid var(--pixel-blue);
+  border-radius: 2px;
+}
+
+.progress-fill {
+  transition: width 0.35s steps(6, end);
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.12) 0,
+    rgba(255, 255, 255, 0.12) 5px,
+    transparent 5px,
+    transparent 10px
+  );
+}
+
+/* Hint and feedback pop-in */
+.hint-box,
+.feedback {
+  animation: feedbackPop 0.2s steps(3, end);
+}
+
+@keyframes feedbackPop {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Number cards in Treasure Bag */
+.number-card {
+  animation: coinBounce 1.6s ease-in-out infinite;
+}
+
+.number-card:nth-child(even) {
+  animation-delay: 0.25s;
+}
+
+@keyframes coinBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Keyboard focus */
+.game-container button:focus-visible,
+.game-container input:focus-visible {
+  outline: 3px dashed var(--pixel-blue);
+  outline-offset: 4px;
+}
+
+/* Small screens */
+@media (max-width: 600px) {
+  .game-container h1 {
+    font-size: clamp(17px, 4vw, 25px);
+    line-height: 1.8;
+  }
+
+  .game-container {
+    border-width: 3px;
+    box-shadow: 0 0 0 2px #081329;
+  }
+
+  .difficulty-options {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Respect players who prefer less animation */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===================================
+   PIXEL TREASURE QUEST ANIMATIONS
+   Safe addition - keeps existing game logic
+=================================== */
+
+@keyframes pixelFloat {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+@keyframes pixelGlow {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+@keyframes pixelPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Main game entrance */
+.game-container {
+    animation: pixelPop 0.35s steps(5, end);
+}
+
+/* Floating treasure decorations */
+.treasure-icon,
+.treasure-chest {
+    display: inline-block;
+    animation: pixelFloat 2s steps(5, end) infinite;
+    transform-origin: center;
+}
+
+/* Retro glowing title */
+h1 {
+    text-shadow: 3px 3px 0 #352044;
+    animation: pixelGlow 3s steps(4, end) infinite;
+}
+
+/* Pixel-style button interaction */
+button {
+    transition:
+        transform 0.12s steps(3, end),
+        filter 0.12s linear;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-3px);
+    filter: brightness(1.15);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(2px);
+}
+
+/* Cards appear with a small pop */
+.answer,
+.number-card,
+.stat,
+.question-card {
+    animation: pixelPop 0.25s steps(4, end);
+}
+
+/* Smooth retro progress movement */
+.progress-fill {
+    transition: width 0.3s steps(6, end);
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
+/* ===================================
+   PIXEL BACKGROUND + TREASURE EFFECTS
+=================================== */
+
+/* Subtle retro night-sky atmosphere */
+body {
+    background-color: #050d2b;
+    background-image:
+        radial-gradient(circle, rgba(100, 190, 255, 0.7) 1px, transparent 2px),
+        radial-gradient(circle, rgba(255, 204, 80, 0.6) 1px, transparent 2px);
+    background-size: 83px 83px, 127px 127px;
+    background-position: 10px 20px, 48px 65px;
+}
+
+/* Glowing treasure chest and treasure icons */
+.treasure-icon,
+.treasure-chest {
+    filter: drop-shadow(0 0 5px rgba(255, 190, 50, 0.55));
+    transform-origin: center bottom;
+}
+
+/* Pixel-like glow on interactive choices */
+.answer:hover,
+.number-card:hover {
+    filter: brightness(1.15);
+    outline: 2px solid rgba(255, 204, 80, 0.65);
+    outline-offset: 2px;
+}
+
+/* Golden glow for selected items */
+.selected {
+    filter: brightness(1.15);
+    box-shadow: 0 0 12px rgba(255, 196, 55, 0.35);
+}
+
+/* Retro focus effect for keyboard users */
+button:focus-visible,
+input:focus-visible {
+    outline: 3px dashed #ffd166;
+    outline-offset: 4px;
+}
+
+/* Keep animations comfortable on small screens */
+@media (max-width: 600px) {
+    .treasure-icon,
+    .treasure-chest {
+        filter: drop-shadow(0 0 3px rgba(255, 190, 50, 0.4));
+    }
+}
+
+/* ===================================
+   RETRO PIXEL BUTTONS & REWARDS
+=================================== */
+
+button {
+    border: 2px solid #ffd166;
+    border-radius: 4px;
+    box-shadow:
+        0 4px 0 #8b4b13,
+        0 0 10px rgba(255, 190, 50, 0.15);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    transition:
+        transform 0.12s steps(3, end),
+        box-shadow 0.12s steps(3, end),
+        filter 0.12s linear;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    filter: brightness(1.15);
+    box-shadow:
+        0 6px 0 #8b4b13,
+        0 0 16px rgba(255, 190, 50, 0.35);
+}
+
+button:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #8b4b13;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    filter: grayscale(0.35);
+    opacity: 0.65;
+}
+
+/* Highlight correct and incorrect answers */
+.answer.correct,
+.number-card.correct {
+    border-color: #5dff9b;
+    box-shadow: 0 0 12px rgba(93, 255, 155, 0.45);
+}
+
+.answer.wrong,
+.number-card.wrong {
+    border-color: #ff6464;
+    box-shadow: 0 0 12px rgba(255, 100, 100, 0.35);
+}
+
+/* Highlight feedback messages */
+.feedback {
+    border-radius: 4px;
+    animation: pixelPop 0.2s steps(4, end);
+}
+
+/* Treasure reward glow */
+.treasure-icon,
+.treasure-chest {
+    filter:
+        drop-shadow(0 0 4px rgba(255, 200, 70, 0.7))
+        drop-shadow(0 0 9px rgba(255, 160, 30, 0.25));
+}
+
+/* ===================================
+   PIXEL PROGRESS & STATUS ANIMATIONS
+=================================== */
+
+@keyframes pixelShine {
+    0% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.35);
+    }
+    100% {
+        filter: brightness(1);
+    }
+}
+
+/* Progress bar */
+.progress-track {
+    border: 2px solid #3c65a8;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    background-image: repeating-linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.12) 0,
+        rgba(255, 255, 255, 0.12) 6px,
+        transparent 6px,
+        transparent 12px
+    );
+    transition: width 0.35s steps(6, end);
+}
+
+/* Status cards */
+.stat {
+    border: 1px solid rgba(100, 180, 255, 0.35);
+    border-radius: 4px;
+    transition:
+        transform 0.15s steps(3, end),
+        border-color 0.15s linear;
+}
+
+.stat:hover {
+    transform: translateY(-3px);
+    border-color: #ffd166;
+}
+
+/* Question panel */
+.question-card {
+    border-radius: 5px;
+    transition: border-color 0.2s linear;
+}
+
+.question-card:hover {
+    border-color: rgba(255, 209, 102, 0.75);
+}
+
+/* Selected topic and difficulty */
+.topic-grid button.selected,
+.difficulty-options button.selected {
+    animation: pixelShine 1.5s steps(4, end) infinite;
+    border-color: #ffd166;
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .topic-grid button.selected,
+    .difficulty-options button.selected {
+        animation: none;
+    }
+}
+
+/* ===================================
+   STEP 5: PIXEL TREASURE CARD EFFECTS
+=================================== */
+
+@keyframes treasurePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(255, 209, 102, 0);
+    }
+    50% {
+        box-shadow: 0 0 14px rgba(255, 209, 102, 0.22);
+    }
+}
+
+.selection-group,
+.topic-grid,
+.difficulty-options {
+    transition: border-color 0.2s ease;
+}
+
+.topic-grid button,
+.difficulty-options button {
+    transition:
+        transform 0.15s steps(3, end),
+        filter 0.15s ease,
+        box-shadow 0.15s ease;
+}
+
+.topic-grid button:hover,
+.difficulty-options button:hover {
+    transform: translateY(-3px);
+    filter: brightness(1.12);
+}
+
+.topic-grid button.selected,
+.difficulty-options button.selected {
+    border-color: #ffd166;
+    animation: treasurePulse 1.8s steps(4, end) infinite;
+}
+
+/* Pixel-like edges for game panels */
+.question-card,
+.selection-group,
+.stat {
+    border-radius: 4px;
+}
+
+/* Keep the effects subtle on smaller screens */
+@media (max-width: 600px) {
+    .topic-grid button:hover,
+    .difficulty-options button:hover {
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .topic-grid button.selected,
+    .difficulty-options button.selected {
+        animation: none;
+    }
+}
+
+/* PIXEL TREASURE REWARD EFFECT */
+
+@keyframes treasureRewardPop {
+    0% {
+        transform: scale(0.85);
+        opacity: 0.4;
+    }
+    60% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.feedback.good {
+    color: #8dffb0;
+    border: 2px solid #55df87;
+    background: rgba(25, 110, 65, 0.18);
+    box-shadow: 0 0 14px rgba(85, 223, 135, 0.22);
+    animation: treasureRewardPop 0.3s steps(5, end);
+}
+
+.feedback.bad {
+    border: 2px solid #ff7777;
+    background: rgba(130, 35, 45, 0.18);
+    animation: treasureRewardPop 0.25s steps(4, end);
+}
+
+.feedback.good::before {
+    content: "💎 ";
+}
+
+.feedback.bad::before {
+    content: "🗿 ";
+}
+
+/* Keep the reward readable on mobile */
+@media (max-width: 600px) {
+    .feedback.good,
+    .feedback.bad {
+        padding: 10px;
+    }
+}
+
+
+/* === Treasure reward effects: additive, safe overrides === */
+.game-container { position: relative; }
+.reward-feedback {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px;
+}
+.reward-icon {
+  display: inline-block;
+  font-size: 1.8em;
+  animation: rewardDiamondPop .65s ease-out;
+}
+.reward-sparkle {
+  display: inline-block;
+  animation: rewardSparkleSpin .8s ease-out;
+}
 .floating-reward {
-  position: absolute; z-index: 5; top: 40%; left: 50%; pointer-events: none;
-  font: 800 clamp(24px, 5vw, 36px) var(--display); white-space: nowrap; color: var(--ember);
-  text-shadow: 0 0 18px rgba(255, 94, 0, .9);
-  animation: rise 1.2s ease-out forwards;
+  position: absolute;
+  z-index: 20;
+  top: 42%;
+  left: 50%;
+  pointer-events: none;
+  color: #ffe27a;
+  font-size: clamp(20px, 4vw, 30px);
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: 2px 2px 0 #6c3e13, 0 0 16px rgba(255, 209, 102, .8);
+  animation: rewardFloatUp 1.25s ease-out forwards;
 }
-.floating-reward.late { color: #ffb4a0; }
-@keyframes rise {
-  from { opacity: 0; transform: translate(-50%, 16px); }
-  20% { opacity: 1; }
-  to { opacity: 0; transform: translate(-50%, -80px); }
+.floating-reward.time-up-reward {
+  color: #ff9c9c;
+  text-shadow: 2px 2px 0 #541d36, 0 0 12px rgba(255, 100, 100, .5);
 }
-
-footer { padding: 7px 14px; border-radius: 999px; font-size: 13px; text-align: center; color: var(--muted); background: rgba(18, 0, 0, .78); }
-
-@media (max-width: 560px) {
-  .levels { grid-template-columns: 1fr; }
-  .hud .venn { width: 88px; }
-  .tile { width: 56px; height: 56px; }
+@keyframes rewardDiamondPop {
+  0% { opacity: 0; transform: scale(.25) rotate(-25deg); }
+  65% { opacity: 1; transform: scale(1.35) rotate(9deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes rewardSparkleSpin {
+  0% { opacity: 0; transform: scale(0) rotate(-90deg); }
+  70% { opacity: 1; transform: scale(1.25) rotate(180deg); }
+  100% { opacity: 1; transform: scale(1) rotate(360deg); }
+}
+@keyframes rewardFloatUp {
+  0% { opacity: 0; transform: translate(-50%, 18px) scale(.65); }
+  22% { opacity: 1; transform: translate(-50%, -8px) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%, -90px) scale(1); }
+}
+.feedback.good { position: relative; }
+.feedback.bad { position: relative; }
+@media (max-width: 520px) {
+  .floating-reward { top: 38%; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .reward-icon, .reward-sparkle, .floating-reward { animation: none !important; }
   .floating-reward { display: none; }
 }
-
-/* Explanations */
-.explain { margin: 6px 0 4px; padding: 14px 16px; border-radius: 10px; background: rgba(255, 94, 0, .1); box-shadow: inset 3px 0 0 var(--inferno); }
-.explain p { margin: 0 0 8px; color: var(--text); }
-.explain a { color: var(--ember); font-size: 14px; font-weight: 600; }
-.explain a:hover { color: var(--text); }
-.explain a:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
-button.need { box-shadow: inset 0 0 0 2px var(--inferno); }
-
-/* Centered results */
-.results { text-align: center; }
-.results .venn { margin-inline: auto; }
-.results h1 { font-size: clamp(36px, 8vw, 60px); }
-.results .final { max-width: 360px; margin-inline: auto; }
-.results .actions { justify-content: center; }
